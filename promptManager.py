@@ -1,3 +1,6 @@
+import dotenv
+dotenv.load_dotenv()
+
 def buildPrompt(marketing_txt, product):
     system_prompt = """
         You are a compliance grader.
