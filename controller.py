@@ -4,7 +4,7 @@ import pandas as pd
 
 from openai import OpenAI
 
-import promptBuilder as pb
+import promptManager as pb
 
 OpenAI.api_key = dotenv.get("OPENAI_API_KEY")
 
