@@ -32,5 +32,5 @@ output=promptManager.getResponseFromLLM(prompt)
 print("Output from LLM: ", output)
 
 #Format output
-formatted_output=outputFormating.formatOutput(output)
-print("Formatted Output: ", formatted_output)
+#formatted_output=outputFormating.formatOutput(output)
+#print("Formatted Output: ", formatted_output)

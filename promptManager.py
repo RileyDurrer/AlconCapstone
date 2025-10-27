@@ -1,25 +1,70 @@
 import dotenv
+import pandas as pd
+import json
+
+from openai import OpenAI
+
+client = OpenAI()
 dotenv.load_dotenv()
 
-def buildPrompt(marketing_txt, product):
-    system_prompt = """
-        You are a compliance grader.
-        For each compliance policy, output:
-        - rule: the policy text
-        - pass: 2 if the text passes, 0 if it fails, 1 if a warning
-        - reason: short explanation
+def buildPrompt(marketing_text, product):
+    """
+    Builds an LLM grading prompt that evaluates a marketing text
+    against dynamically retrieved compliance policies.
+    """
+    policies = getCompliancePolicies(product)
+    policies_formatted = "\n".join(
+        [f"{i+1}. {p}" for i, p in enumerate(policies)]
+    )
 
-        Return ONLY valid JSON in the format:
-        {
-        "results": [
-            {"rule": "...", "pass": 0 or 1, "reason": "..."},
-            {"rule": "...", "pass": 0 or 1, "reason": "..."}
-        ]
-        }
+    prompt = f"""
+        You are a compliance grader evaluating marketing content.
+
+        **Task:** Review the provided marketing text and assign a numeric score (0–100)
+        for how well it complies with each listed policy or regulation.
+
+        ### Marketing Text
+        {marketing_text}
+
+        ### Compliance Policies and Regulations
+        {policies_formatted}
+
+        ### Instructions
+        - Base your grades on factual compliance alignment, accuracy of claims, and regulatory adherence.
+        - Give a **brief reason** for each score.
+        - Higher scores mean stronger compliance.
+
+        ### Output Format
+        Return results as structured JSON:
+        {{
+        "evaluations": [
+            {{
+            "policy": "<policy_name>",
+            "grade": <0-100>,
+            "reason": "<brief justification>"
+            }}
+        ],
+        "overall_summary": "<short summary of overall compliance>"
+        }}
         """
-    
-    
-    prompt = f"Grade the following marketing material based on how it complies with the following policies and regulation \n\n{marketing_txt}\n\nProduct Description:"
-    return prompt
+    return prompt.strip()
+
+def getCompliancePolicies(product):
+    # Load compliance policies from a CSV file
+    policies_df = pd.read_csv('compliance_policies.csv')
+    policies = policies_df['policy_text'].tolist()
+    return policies
 
 def getResponseFromLLM(prompt):
+    """Send the compliance prompt to the LLM and parse JSON output."""
+
+    response = client.responses.create(
+        model="gpt-4.1-mini",  # or "gpt-5" if available
+        input=prompt,
+        response_format={"type": "json_object"}
+    )
+
+    # Parse JSON safely
+    content = response.output[0].content[0].text
+    return json.loads(content)
+
