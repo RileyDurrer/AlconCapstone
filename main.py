@@ -9,16 +9,16 @@ import outputFormating
 #Get marketing material
 marketing_material = input("Enter marketing material: ") 
 
-# Select product
+# Select product - as you add more products it would be better to start using IDs but we are using names for ease of reading here.
 product=None
 while product==None:
     product_num=input("1: Clareon® Toric Intraocular Lens (IOL) or 2:  PRECISION7® Contact Lenses")
 
     if product_num=="1":
-        product="Clareon® Toric Intraocular Lens (IOL)"
+        product="ClareonPanOptix""
 
     elif product_num=="2":
-        product="PRECISION7® Contact Lenses"
+        product="TOTAL30"
     else:
         print("Invalid input, please enter 1 or 2.")
     
