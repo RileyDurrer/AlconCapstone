@@ -1,11 +1,13 @@
 import dotenv
 import pandas as pd
 import json
+import os
 
 from openai import OpenAI
 
 client = OpenAI()
 dotenv.load_dotenv()
+client = dotenv.get_key(dotenv.find_dotenv(), "OPENAI_API_KEY")
 
 def buildPrompt(marketing_text: str, product: str) -> str:
     """
