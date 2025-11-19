@@ -5,9 +5,8 @@ import os
 
 from openai import OpenAI
 
-client = OpenAI()
 dotenv.load_dotenv()
-client = dotenv.get_key(dotenv.find_dotenv(), "OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def buildPrompt(marketing_text: str, product: str) -> str:
     """
@@ -16,7 +15,7 @@ def buildPrompt(marketing_text: str, product: str) -> str:
     - Enforces compliance with FDA + FTC policies
     - Returns IDs so caller can map response -> original DataFrame rows
     """
-    approved, fda, ftc = load_product(product)
+    approved, fda, ftc = getCompliancePolicies(product)
 
     # Clean + index for traceability
     approved = approved.reset_index(drop=True)
@@ -103,9 +102,13 @@ Conflicts → lower score.
 ---
 
 ## Output Rules
-- Score each item separately.
-- Include `policy_id`, `policy`, `type`, `grade`, and brief `reason`.
+- You must evaluate EVERY policy in ALL policy groups (Approved, FDA, FTC). No exceptions.
+- Produce exactly one evaluation object per policy.
+- If the policy is unrelated, still output it with a high grade (e.g., 80–100) and reason "Unrelated; no conflict."
+- Include: policy_id, policy, type, grade, reason.
 - Higher scores = stronger compliance.
+- Return ONLY JSON in the required format.
+- Do NOT include any text outside the JSON structure.
 
 Return ONLY JSON, no commentary.
 
@@ -132,7 +135,7 @@ def getCompliancePolicies(product):
     Loads all CSV files under ./compliance_docs/{product}_compliance/
     Returns: {file_stem: DataFrame}
     """
-    base_dir = os.path.dirname(__file__)                 # folder of this .py
+    base_dir = os.getcwd()                 # folder of this .py
     folder = os.path.join(base_dir, "compliance_docs", f"{product}_compliance")
 
     if not os.path.exists(folder):
@@ -145,17 +148,15 @@ def getCompliancePolicies(product):
     return approved_claims, fda, ftc
 
 
-
-def getResponseFromLLM(prompt):
-    """Send the compliance prompt to the LLM and parse JSON output."""
-
+def getResponseFromLLM(prompt: str) -> dict:
     response = client.responses.create(
-        model="gpt-4.1-mini",  # or "gpt-5" if available
+        model="gpt-4.1-mini",
         input=prompt,
-        response_format={"type": "json_object"}
     )
 
-    # Parse JSON safely
-    content = response.output[0].content[0].text
-    return json.loads(content)
+    text = response.output_text.strip()
+    text = text.replace("```json", "").replace("```", "").strip()
+
+    return json.loads(text)
+
 
