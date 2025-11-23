@@ -158,5 +158,3 @@ def getResponseFromLLM(prompt: str) -> dict:
     text = text.replace("```json", "").replace("```", "").strip()
 
     return json.loads(text)
-
-
