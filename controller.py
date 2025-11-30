@@ -2,7 +2,7 @@ import dotenv
 dotenv.load_dotenv()
 import pandas as pd
 
-from openai import OpenAI
+import openai
 
 import promptManager as pb
 

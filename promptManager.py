@@ -7,8 +7,9 @@ from openai import OpenAI
 
 dotenv.load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+STRICTNESS = int(os.getenv("SCORING_STRICTNESS", "5"))
 
-def buildPrompt(marketing_text: str, product: str) -> str:
+def buildPrompt(marketing_text: str, product: str, strictness=STRICTNESS) -> str:
     """
     Builds a grading prompt that:
     - Rewards similarity to Approved Claims
@@ -86,25 +87,42 @@ Your goal is to:
 
 ---
 
+## Strictness Level
+Strictness = {strictness}   # 1–10
+
+Interpretation:
+- Strictness 1–3 (lenient): Only clear conflicts should significantly reduce scores. Unsubstantiated or vague claims should receive moderate-to-high grades.
+- Strictness 4–7 (standard): Use scoring rules as written.
+- Strictness 8–10 (strict): Be conservative. Require strong evidence for high scores. Penalize weak similarity or even minor risks more heavily.
+
+Higher strictness → lower grades for borderline similarity or mild compliance concerns.
+Lower strictness → higher grades unless clear conflict exists.
+
 ## Scoring Rules
 
 ### Approved Claims
-If text is similar in meaning to an approved claim → high score.
+Evaluate how similar the marketing text is to each approved claim.
 - Very similar wording → 85–100
 - Same meaning (rephrased) → 70–85
 - Partial alignment → 50–70
-- Unrelated → 0–50
+- Unrelated or no alignment → 0–50
+
 
 ### FDA / FTC Policies
-Must be followed.
-Conflicts → lower score.
+These reflect regulatory requirements.
+
+- Fully compliant or unrelated → 80–100
+- Minor risk or unclear compliance → 60–80
+- Clear conflict, violation, or misleading claim → 0–60
+
 
 ---
 
 ## Output Rules
 - You must evaluate EVERY policy in ALL policy groups (Approved, FDA, FTC). No exceptions.
 - Produce exactly one evaluation object per policy.
-- If the policy is unrelated, still output it with a high grade (e.g., 80–100) and reason "Unrelated; no conflict."
+- For FDA and FTC policies: if the policy is unrelated, output a high grade (80–100) and the reason "Unrelated; no conflict."
+- For Approved policies: if unrelated, output a low grade (0–50) and the reason "Unrelated; no similarity."
 - Include: policy_id, policy, type, grade, reason.
 - Higher scores = stronger compliance.
 - Return ONLY JSON in the required format.
@@ -116,8 +134,8 @@ Return ONLY JSON, no commentary.
 {{
   "evaluations": [
     {{
-      "policy_id": "<approved:3 | fda:7 | ftc:5>",
-      "policy": "<policy text>",
+        "policy_id": "<approved:3 | fda:7 | ftc:5>",
+        "policy": "<policy text>",
       "type": "<approved | fda | ftc>",
       "grade": <0-100>,
       "reason": "<brief justification>"
