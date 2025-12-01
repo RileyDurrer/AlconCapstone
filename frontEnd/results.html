@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Alcon MLR Pre‑Screening Agent – Results (Export Footer)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --alcon-blue:#0072CE;
+  --alcon-blue-600:#035bb0;
+  --bg:#F6F8FB;
+  --text:#1F2937;
+  --muted:#6B7280;
+  --card:#FFFFFF;
+  --border:#E5E7EB;
+  --shadow:0 10px 20px rgba(16,24,40,.06),0 2px 6px rgba(16,24,40,.06);
+  --green:#12B76A;
+  --amber:#F59E0B;
+  --red:#D92D20;
+  --radius:16px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--text);background:var(--bg)}
+
+/* Top bar */
+.topbar{background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;}
+.topbar .inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:16px;justify-content:space-between;padding:14px 20px;}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700}
+.logo{width:28px;height:28px;border-radius:6px;background:var(--alcon-blue);box-shadow:inset 0 -8px 16px rgba(255,255,255,.25)}
+.brand span{color:var(--alcon-blue)}
+.crumbs{font-size:12px;color:var(--muted)}
+.avatar{width:32px;height:32px;border-radius:999px;background:linear-gradient(135deg,#c7d2fe,#e0e7ff);display:grid;place-items:center;font-weight:600;color:#334155}
+
+/* Page shell */
+.wrap{display:flex;justify-content:center}
+.grid{max-width:1200px;width:100%;margin:0 auto;padding:16px}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:20px}
+.card h3{margin:0 0 8px;font-size:18px}
+.sub{font-size:12px;color:var(--muted)}
+.section-title{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+.btn{font-family:inherit;font-size:14px;border-radius:12px;border:1px solid var(--alcon-blue);padding:10px 12px;background:#fff;color:var(--alcon-blue);text-decoration:none}
+
+/* Submitted content row */
+.preview-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-bottom:16px}
+@media (max-width:720px){.preview-row{grid-template-columns:1fr}}
+.preview{border-radius:12px;border:1px dashed var(--border);background:#FBFCFE;padding:12px}
+.preview .label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.preview textarea{resize:vertical;min-height:72px;max-height:220px;border:none;outline:none;background:transparent;font-family:inherit;font-size:14px;color:#111;line-height:1.5;width:100%}
+.help{font-size:12px;color:var(--muted);margin-top:6px}
+.btn-primary{border-color:var(--alcon-blue);background:var(--alcon-blue);color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;font-weight:600}
+.btn-primary:hover{background:var(--alcon-blue-600)}
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* 2x2 grid */
+.features{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:900px){.features{grid-template-columns:1fr}}
+.card-square{min-height:360px;display:flex;flex-direction:column}
+
+/* Donut */
+.donut{--deg:0deg;--color:var(--amber);position:relative;width:120px;height:120px;border-radius:50%;display:grid;place-items:center}
+.donut .ring{position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--color) var(--deg), #e5e7eb 0);transform:rotate(-90deg);-webkit-mask:radial-gradient(#0000 58%, #000 59%);mask:radial-gradient(#0000 58%, #000 59%);pointer-events:none}
+.donut .num{font-weight:700;font-size:22px;color:#111}
+.donut-wrap{display:flex;align-items:center;gap:20px}
+.legend{font-size:14px;line-height:1.8}
+.legend-item{display:flex;align-items:center;gap:6px}
+.dot{width:12px;height:12px;border-radius:50%}
+.dot.green{background:var(--green)} .dot.amber{background:var(--amber)} .dot.red{background:var(--red)}
+.bubble{display:inline-block;margin-top:10px;padding:6px 14px;border-radius:999px;font-weight:600;font-size:13px}
+.bubble.red{background:#FEF3F2;color:#B91C1C;border:1px solid var(--red)}
+.bubble.amber{background:#FFFAEB;color:#92400E;border:1px solid var(--amber)}
+.bubble.green{background:#ECFDF5;color:#065F46;border:1px solid var(--green)}
+
+/* Breakdown bars */
+.bar{height:6px;background:#eef2f7;border-radius:6px;overflow:hidden;width:220px;margin-left:8px}
+.bar>i{display:block;height:100%;background:var(--alcon-blue)}
+.std-row{display:grid;grid-template-columns:1fr 220px 160px;align-items:center;gap:12px;margin:12px 0}
+
+/* Detailed Analysis */
+.issue{border:1px solid var(--border);border-radius:12px;padding:12px;background:#FFF;margin:8px 0}
+.issue-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sev{font-size:12px;font-weight:700;border-radius:999px;padding:2px 8px}
+.sev.critical{background:#FEE2E2;color:#991B1B;border:1px solid #DC2626}
+.sev.high{background:#FEF3C7;color:#92400E;border:1px solid #F59E0B}
+.sev.moderate{background:#E0E7FF;color:#3730A3;border:1px solid #6366F1}
+.tag{font-size:12px;font-weight:700;border-radius:999px;padding:2px 8px;border:1px solid #E5E7EB;background:#F8FAFC}
+.quote{margin-top:6px;color:#111;font-style:italic}
+.citations{font-size:12px;color:#6B7280;margin-top:6px;line-height:1.4}
+
+/* Recommendations list */
+.rec{border:1px dashed var(--border);border-radius:12px;padding:12px;margin:8px 0;background:#FBFCFE}
+.rec strong{color:#111}
+
+/* Mini Chat */
+.chat{
+  margin-top:auto;
+  display:flex;
+  flex-direction:column;
+  height:220px;
+  border-top:1px solid var(--border);
+  padding-top:12px;
+  gap:8px;
+}
+
+.chat-log{
+  flex:1;
+  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding-right:2px;
+}
+
+.msg{
+  max-width:80%;
+  padding:8px 12px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  font-size:13px;
+  line-height:1.4;
+}
+
+.msg.bot{
+  align-self:flex-start;
+  background:#F8FAFC;
+}
+
+.msg.user{
+  align-self:flex-end;
+  background:#E0F2FE;
+  border-color:#BAE6FD;
+}
+
+.chat-input{
+  display:flex;
+  gap:8px;
+  margin-top:4px;
+}
+
+.chat-input input{
+  flex:1;
+  padding:10px 12px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:#F9FAFB;
+  font-family:inherit;
+  font-size:14px;
+}
+
+.chat-input input::placeholder{
+  color:var(--muted);
+}
+
+.chat-input button{
+  padding:10px 16px;
+  border-radius:999px;
+  background:var(--alcon-blue);
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  font-weight:600;
+  font-size:14px;
+  white-space:nowrap;
+}
+
+.chat-input button:hover{
+  background:var(--alcon-blue-600);
+}
+/* Export footer (anchored, non-floating) */
+
+
+
+
+.export-footer {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
+.export-btn {
+  background-color: var(--alcon-blue);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.export-btn:hover { background-color: var(--alcon-blue-600); }
+
+.export-btn {
+  background-color: var(--alcon-blue);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.export-btn:hover {
+  background-color: var(--alcon-blue-600);
+}
+
+.export-btn {
+  background-color: var(--alcon-blue);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.export-btn:hover {
+  background-color: var(--alcon-blue-600);
+}
+
+.export-btn {
+  background-color: var(--alcon-blue);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.export-btn:hover {
+  background-color: var(--alcon-blue-600);
+}
+
+.export-btn{
+  background-color:var(--alcon-blue);
+  color:#fff;
+  border:none;
+  border-radius:12px;
+  padding:10px 16px;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,0.08);
+}
+.export-btn:hover{ background-color:var(--alcon-blue-600); }
+
+.results-card {
+  position: relative;
+  padding-bottom: 100px; /* reserve space so button doesn't overlap content */
+}
+
+
+#resultsContainer{
+  position: relative;
+  padding-bottom: 100px; /* space for the button */
+}
+
+</style>
+</head>
+<body>
+<header class="topbar" role="banner">
+  <div class="inner">
+    <div class="brand"><div class="logo" aria-hidden="true"></div><span>Alcon</span><div class="crumbs">MLR Pre‑Screening Agent · Results</div></div>
+    <div class="avatar" title="Sarah Chen">SC</div>
+  </div>
+</header>
+
+<main class="wrap" role="main">
+  <div class="grid">
+    <!-- RESULTS CONTAINER (scoped for export) -->
+    <section class="card" id="resultsContainer">
+      <div class="section-title">
+        <div>
+          <h3>Results</h3>
+          <div class="sub" id="prodLabel">Analysis for: —</div>
+        </div>
+        <a href="review.html" class="btn no-export">← Back to Review</a>
+      </div>
+
+      <!-- Submitted content row -->
+      <div class="preview-row" aria-labelledby="preview-label">
+        <div class="preview">
+          <div id="preview-label" class="label">Submitted Content</div>
+          <textarea id="contentEditor"></textarea>
+          <div class="help">You can edit the submitted content here, then click <strong>Reanalyze Content</strong>.</div>
+        </div>
+        <button id="reanalyzeBtn" class="btn-primary no-export" aria-label="Reanalyze content">
+          <span class="spinner" id="btnSpinner" style="display:none"></span>
+          <span id="btnText">Reanalyze Content</span>
+        </button>
+      </div>
+
+      <!-- 2x2 feature grid -->
+      <div class="features">
+        <!-- Donut -->
+        <div class="card card-square">
+          <h3>Overall Compliance Score</h3>
+          <div class="donut-wrap" style="margin-top:10px">
+            <div class="donut" id="donut"><div class="ring"></div><div class="num" id="scoreNum">—</div></div>
+            <div>
+              <div class="legend">
+                <div class="legend-item"><span class="dot green"></span> Strong (85–100)</div>
+                <div class="legend-item"><span class="dot amber"></span> Needs review (70–84)</div>
+                <div class="legend-item"><span class="dot red"></span> High risk (&lt;70)</div>
+              </div>
+              <div id="statusBubble" class="bubble amber">Status: …</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Breakdown -->
+        <div class="card card-square">
+          <h3>Breakdown by Standards</h3>
+          <div class="sub">Each row shows the % of content that is compliant for that standard.</div>
+          <div style="margin-top:8px">
+            <div class="std-row"><span>FDA Compliance</span><div class="bar"><i id="barFDA"></i></div><span id="pctFDA">—% compliant</span></div>
+            <div class="std-row"><span>FTC Compliance</span><div class="bar"><i id="barFTC"></i></div><span id="pctFTC">—% compliant</span></div>
+            <div class="std-row"><span>MLR Compliance</span><div class="bar"><i id="barMLR"></i></div><span id="pctMLR">—% compliant</span></div>
+            <div class="std-row"><span>Internal Standards</span><div class="bar"><i id="barINT"></i></div><span id="pctINT">—% compliant</span></div>
+          </div>
+        </div>
+
+        <!-- Detailed Analysis -->
+        <div class="card card-square" id="detailCard">
+          <h3>Detailed Analysis <span class="sub" id="detailCount"></span></h3>
+          <div class="sub" id="detailSub">Issues detected in the submitted content, with citations to the relevant rules.</div>
+          <div id="issuesWrap" style="margin-top:8px;overflow:auto"></div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="card card-square" id="recsCard">
+          <h3>Recommendations</h3>
+          <div class="sub">Drafted alternatives and language to consider. Confirm with MLR before use.</div>
+          <div id="recsWrap" style="margin-top:8px"></div>
+
+          <!-- Chat is excluded from export via .no-export -->
+          <div class="chat no-export" aria-label="Ask about these results">
+            <div class="chat-log" id="chatLog"></div>
+            <div class="chat-input">
+              <input id="chatInput" type="text" placeholder="Ask why an item was flagged or how to phrase it…" aria-label="Chat input">
+              <button id="chatSend">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+      <!-- EXPORT FOOTER (non-floating) -->
+      <div class="export-footer no-export">
+        <button id="exportPDF" class="export-btn">Export Results as PDF</button>
+      </div>
+
+      
+    </section>
+  </div>
+</main>
+
+<!-- html2pdf.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+<script>
+// Bootstrap
+const product = localStorage.getItem('mlr_product') || '—';
+const uploadName = localStorage.getItem('mlr_upload_name') || '';
+document.getElementById('prodLabel').textContent = `Analysis for: ${product}${uploadName ? ' · File: ' + uploadName : ''}`;
+const editor = document.getElementById('contentEditor');
+editor.value = localStorage.getItem('mlr_text') || '';
+
+// Rules & Suggestions (subset for demo)
+const RULES = [
+  { id:'superiority', title:'Unsubstantiated superiority / superlative claim', severity:'critical',
+    standards:['FDA','FTC','MLR'],
+    citations:[
+      'FDA: 21 CFR 202.1(e)(6)(i) – claims must be supported by substantial evidence',
+      'FTC: Policy Statement on Deception – objective claims require competent & reliable evidence',
+      'MLR: Alcon MLR guidance – avoid absolute/superiority claims without head‑to‑head proof'
+    ],
+    patterns:[/world[’'`]?s?\s*most\s*advanced\b/gi,/\bmost\s+advanced\b/gi,/\bmost\s+effective\b/gi,/\bsafest\b/gi,/\bunmatched\b|\bunsurpassed\b|\bbest\b/gi,/#1|\bno\.?\s*1\b/gi,/\bleading\b/gi]
+  },
+  { id:'guarantee', title:'Improper guarantee of outcomes', severity:'high',
+    standards:['FTC','MLR','Internal'],
+    citations:[
+      'FTC: Guides Concerning Use of Endorsements & Testimonials – avoid unqualified guarantees of outcomes',
+      'MLR: Alcon MLR guidance – no guaranteed results; qualify real‑world variability',
+      'Internal: Alcon policy – do not promise outcomes'
+    ],
+    patterns:[/\bguarantee(d)?\b/gi]
+  },
+  { id:'perfect', title:'Overstated outcome ("perfect vision")', severity:'high',
+    standards:['FDA','MLR'],
+    citations:[
+      'FDA: 21 CFR 202.1(e)(5) – claims cannot be false or misleading; require fair balance',
+      'MLR: Alcon MLR guidance – avoid absolute outcome language; include risk and variability'
+    ],
+    patterns:[/\bperfect\s+vision\b/gi]
+  },
+  { id:'no_glasses', title:'Implied elimination of glasses', severity:'high',
+    standards:['FDA','MLR','FTC'],
+    citations:[
+      'FDA: 21 CFR 202.1(e)(5) – avoid misleading implications; fair balance required',
+      'MLR: Alcon MLR guidance – avoid absolute/no‑glasses claims; results vary',
+      'FTC: Policy Statement on Deception – objective claims need competent & reliable evidence'
+    ],
+    patterns:[
+      /\bnever\s+need\s+(your\s+)?glasses(\s+again)?\b/gi,
+      /\bno\s+need\s+for\s+glasses\b/gi,
+      /\bwon'?t\s+need\s+glasses\b/gi,
+      /\bwill\s+not\s+need\s+glasses\b/gi
+    ]
+  }
+];
+const SUGGESTIONS = {
+  superiority: [
+    {title:'Remove absolute/superlative language', text:'Replace “most advanced / safest / best” with precise, non‑comparative terms tied to the indication.'},
+    {title:'Anchor to approvals or data', text:'Reference approved indication and, if needed, summarize key, balanced findings (sample size, endpoints).'}
+  ],
+  guarantee: [
+    {title:'Avoid guarantees or promises', text:'Use qualified phrasing (e.g., “may help improve…”) and include nearby variability language.'}
+  ],
+  perfect: [
+    {title:'Avoid “perfect vision”', text:'Use specific, data‑anchored benefits (e.g., “provides near and intermediate vision”) and include fair balance.'}
+  ],
+  no_glasses: [
+    {title:'Don’t imply “no glasses”', text:'Use qualified phrasing such as “designed to reduce dependence on glasses; individual results vary.”'}
+  ]
+};
+
+function extractIssues(text){
+  const out=[];
+  RULES.forEach(rule=>{
+    const hits=[]; rule.patterns.forEach(re=>{ let m; while((m=re.exec(text||''))!==null){ hits.push(m[0].trim()); } });
+    const unique=[...new Set(hits)];
+    if(unique.length){ out.push({ id:rule.id, title:rule.title, severity:rule.severity, standards:rule.standards, citations:rule.citations, quotes:unique.slice(0,8) }); }
+  });
+  return out;
+}
+
+function scoreFrom(text){
+  const len = (text && text.length) ? text.length : 1;
+  let base = Math.min(96, Math.max(42, Math.round(42 + Math.log(len) * 10)));
+  const foundIssues = extractIssues(text);
+
+  let fda  = Math.max(50, Math.min(95, base - 6));
+  let ftc  = Math.max(55, Math.min(96, base - 2));
+  let mlr  = Math.max(55, Math.min(97, base + 2));
+  let intl = Math.max(60, Math.min(98, base + 8));
+
+  if (foundIssues.some(i => i.id==='superiority')){ fda-=12; ftc-=10; mlr-=9; }
+  if (foundIssues.some(i => i.id==='guarantee')){ ftc-=6; mlr-=4; intl-=3; }
+  if (foundIssues.some(i => i.id==='perfect')){ fda-=6; mlr-=5; }
+  if (foundIssues.some(i => i.id==='no_glasses')){ ftc-=6; mlr-=5; fda-=4; }
+
+  const clamp = v => Math.max(0, Math.min(100, Math.round(v)));
+  fda=clamp(fda); ftc=clamp(ftc); mlr=clamp(mlr); intl=clamp(intl);
+  const overall = clamp(fda*0.40 + ftc*0.25 + mlr*0.20 + intl*0.15);
+  return {fda, ftc, mlr, intl, overall, issues:foundIssues};
+}
+function renderBreakdown({fda, ftc, mlr, intl}){
+  const rows=[['FDA',fda],['FTC',ftc],['MLR',mlr],['INT',intl]];
+  for(const [id,val] of rows){
+    document.getElementById('pct'+id).textContent = val + '% compliant';
+    document.getElementById('bar'+id).style.width = val + '%';
+  }
+}
+const donut=document.getElementById('donut');
+const scoreNum=document.getElementById('scoreNum');
+const statusBubble=document.getElementById('statusBubble');
+function renderDonut(pct){
+  scoreNum.textContent=pct;
+  donut.style.setProperty('--deg',(pct*3.6)+'deg');
+  if(pct>=85){ donut.style.setProperty('--color','var(--green)'); statusBubble.className='bubble green'; statusBubble.textContent='Strong – compliant'; }
+  else if(pct>=70){ donut.style.setProperty('--color','var(--amber)'); statusBubble.className='bubble amber'; statusBubble.textContent='Needs review – some issues'; }
+  else { donut.style.setProperty('--color','var(--red)'); statusBubble.className='bubble red'; statusBubble.textContent='High risk – multiple critical issues'; }
+}
+function el(tag,attrs={},html=''){ const n=document.createElement(tag); Object.entries(attrs).forEach(([k,v])=>{ if(k==='class') n.className=v; else n.setAttribute(k,v); }); if(html) n.innerHTML=html; return n; }
+function renderIssues(issues){
+  const wrap=document.getElementById('issuesWrap'); wrap.innerHTML='';
+  const sub=document.getElementById('detailSub');
+  const countEl=document.getElementById('detailCount');
+  if(!issues.length){ sub.textContent='No critical patterns detected. Review suggested for risks & references.'; countEl.textContent=''; return; }
+  sub.textContent='';
+  countEl.textContent = `• ${issues.length} issue${issues.length>1?'s':''}`;
+  issues.forEach(issue=>{
+    const box=el('div',{class:'issue'});
+    const head=el('div',{class:'issue-head'});
+    const sev=el('span',{class:`sev ${issue.severity}`}, issue.severity==='critical'?'Critical':issue.severity==='high'?'High':'Moderate');
+    const title=el('strong',{},issue.title);
+    head.append(sev,title);
+    issue.standards.forEach(s=>head.append(el('span',{class:'tag'},s)));
+    box.append(head);
+    issue.quotes.forEach(q=>box.append(el('div',{class:'quote'},'“'+q+'”')));
+    const cites=el('div',{class:'citations'}); cites.innerHTML='<strong>Citations:</strong> '+issue.citations.join(' · ');
+    box.append(cites);
+    wrap.append(box);
+  });
+}
+function renderRecs(issues){
+  const wrap=document.getElementById('recsWrap'); wrap.innerHTML='';
+  if(!issues.length){ wrap.innerHTML = '<div class="rec"><strong>No high‑risk items.</strong> Consider a brief disclaimer near key performance statements.</div>'; return; }
+  issues.forEach(issue=>{
+    const ideas=(SUGGESTIONS[issue.id]||[]);
+    ideas.forEach(idea=>{
+      const r=el('div',{class:'rec'}); r.innerHTML=`<strong>${idea.title}:</strong> ${idea.text}`; wrap.append(r);
+    });
+  });
+}
+function analyzeNow(text){
+  const s=scoreFrom(text);
+  renderBreakdown(s); renderDonut(s.overall); renderIssues(s.issues); renderRecs(s.issues);
+}
+analyzeNow(editor.value);
+
+// Reanalyze button with spinner
+const btn=document.getElementById('reanalyzeBtn');
+const spinner=document.getElementById('btnSpinner');
+const btnText=document.getElementById('btnText');
+btn.addEventListener('click',()=>{
+  const newText=editor.value;
+  localStorage.setItem('mlr_text', newText);
+  btn.disabled=true; spinner.style.display='inline-block'; btnText.textContent='Analyzing…';
+  setTimeout(()=>{ analyzeNow(newText); spinner.style.display='none'; btn.disabled=false; btnText.textContent='Reanalyze Content'; }, 450);
+});
+
+// Mini Chat logic (excluded from export via .no-export)
+const chatLog=document.getElementById('chatLog');
+const chatInput=document.getElementById('chatInput');
+const chatSend=document.getElementById('chatSend');
+function push(role, text){ const m=el('div',{class:'msg '+role}, text); chatLog.append(m); chatLog.scrollTop = chatLog.scrollHeight; }
+function explainers(){ return {
+  superiority: 'Superlatives imply overall superiority; FDA 21 CFR 202.1(e) and FTC policy require robust comparative evidence.',
+  guarantee: 'Outcome guarantees are typically misleading without strong substantiation and fair balance (FTC/MLR).',
+  perfect: '“Perfect vision” is absolute outcome language; use specific, balanced claims per FDA/MLR.',
+  no_glasses: 'Eliminating glasses is often unrealistic; qualify dependence reduction and variability.'
+}; }
+function handleChat(q, issues){
+  const s=q.toLowerCase(); const ex=explainers();
+  if(s.includes('why')||s.includes('flag')){
+    if(s.includes('advanced')||s.includes('safest')||s.includes('best')) return ex.superiority;
+    if(s.includes('guarantee')) return ex.guarantee;
+    if(s.includes('perfect')) return ex.perfect;
+    if(s.includes('glasses')) return ex.no_glasses;
+    return issues.length ? `I flagged: ${issues.map(i=>i.title).join('; ')}.` : 'No specific flags found.';
+  }
+  if(s.includes('rewrite')||s.includes('how')||s.includes('fix')||s.includes('acceptable')){
+    return 'Try removing superlatives, avoid guarantees, and use qualified, indication‑anchored phrasing with nearby risk/variability statements. See the recommendations above.';
+  }
+  return 'Ask “why was <phrase> flagged?” or “how should I rewrite this?”';
+}
+push('bot','Hi! Ask why something was flagged, or how to phrase it more safely.');
+if(chatSend){ chatSend.addEventListener('click',()=>{ const q=chatInput.value.trim(); if(!q) return; push('user', q); chatInput.value=''; setTimeout(()=>push('bot', handleChat(q, extractIssues(editor.value))), 180); }); }
+if(chatInput){ chatInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ chatSend.click(); }}); }
+
+// Export clean report (exclude .no-export elements, render textarea content as static text)
+function buildCleanReportNode(){
+  const src = document.getElementById('resultsContainer');
+  const clone = src.cloneNode(true);
+  // Remove any .no-export within the clone
+  clone.querySelectorAll('.no-export').forEach(el => el.remove());
+  // Replace textarea with static <pre>
+  const ta = clone.querySelector('#contentEditor');
+  if(ta){
+    const pre = document.createElement('pre');
+    pre.style.whiteSpace = 'pre-wrap';
+    pre.style.fontFamily = 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif';
+    pre.style.fontSize = '14px';
+    pre.style.color = '#111';
+    pre.textContent = document.getElementById('contentEditor').value || '';
+    ta.replaceWith(pre);
+  }
+  // Update product/file in clone
+  const prod = localStorage.getItem('mlr_product') || '—';
+  const up = localStorage.getItem('mlr_upload_name') || '';
+  const label = clone.querySelector('#prodLabel');
+  if(label){ label.textContent = `Analysis for: ${prod}${up ? ' · File: ' + up : ''}`; }
+  return clone;
+}
+
+document.getElementById('exportPDF').addEventListener('click', () => {
+  const reportNode = buildCleanReportNode();
+  const holder = document.createElement('div');
+  holder.style.position = 'fixed';
+  holder.style.left = '-99999px';
+  holder.appendChild(reportNode);
+  document.body.appendChild(holder);
+
+  const opt = {
+    margin: 0.5,
+    filename: 'alcon-mlr-results.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(reportNode).save().then(() => {
+    document.body.removeChild(holder);
+  }).catch(() => {
+    document.body.removeChild(holder);
+  });
+});
+</script>
+
+<!-- ==== BEGIN: Export footer fixed bottom & centered (override only) ==== -->
+<style id="mlr-export-footer-fixed">
+  
+
+
+
+.export-footer {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
+.export-btn {
+  background-color: var(--alcon-blue);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.export-btn:hover { background-color: var(--alcon-blue-600); }
+
+.export-btn {
+  background-color: var(--alcon-blue);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.export-btn:hover {
+  background-color: var(--alcon-blue-600);
+}
+
+.export-btn {
+  background-color: var(--alcon-blue);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.export-btn:hover {
+  background-color: var(--alcon-blue-600);
+}
+
+.export-btn {
+  background-color: var(--alcon-blue);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.export-btn:hover {
+  background-color: var(--alcon-blue-600);
+}
+
+  .export-footer .export-btn {
+    pointer-events: auto;     /* button still clickable */
+  }
+
+.results-card {
+  position: relative;
+  padding-bottom: 100px; /* reserve space so button doesn't overlap content */
+}
+
+
+#resultsContainer{
+  position: relative;
+  padding-bottom: 100px; /* space for the button */
+}
+
+</style>
+<!-- ==== END: Export footer fixed bottom & centered ==== -->
+
+
+<!-- ==== BEGIN: Export behavior patch (ignore footer in PDF) ==== -->
+<script>
+(function() {
+  function setupExport() {
+    var btn = document.getElementById('exportPDF');
+    if (!btn || typeof html2pdf === 'undefined') return;
+    var source = document.getElementById('export-root') || document.body;
+    btn.addEventListener('click', function() {
+      try {
+        var opt = {
+          margin: 0.5,
+          filename: 'alcon-mlr-results.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: {
+            scale: 2,
+            ignoreElements: function(el) {
+              return el && el.classList && el.classList.contains('no-export');
+            }
+          },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(source).save();
+      } catch (e) {
+        console.error('Export failed:', e);
+        alert('Export failed. If running from a local file, try a local server or HTTPS.');
+      }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupExport);
+  } else {
+    setupExport();
+  }
+})();
+</script>
+<!-- ==== END: Export behavior patch ==== -->
+
+
+<!-- ==== BEGIN: Results refresh hooks (optional, non-breaking) ==== -->
+<script>
+/**
+ * To refresh the UI after reanalyzing, dispatch one event with the new HTML:
+ * window.dispatchEvent(new CustomEvent('mlr:results', {
+ *   detail: { analysisHTML: '<div>...</div>', recommendationsHTML: '<div>...</div>' }
+ * }));
+ */
+(function() {
+  function setHTML(el, html) { if (el && typeof html === 'string') el.innerHTML = html; }
+  window.addEventListener('mlr:results', function(e) {
+    var d = (e && e.detail) || {};
+    var da = document.querySelector('#detailed-analysis-card, .detailed-analysis-card, [data-role="detailed-analysis-card"]');
+    var rc = document.querySelector('#recommendations-card, .recommendations-card, [data-role="recommendations-card"]');
+    if (d.analysisHTML) setHTML(da, d.analysisHTML);
+    if (d.recommendationsHTML) setHTML(rc, d.recommendationsHTML);
+  });
+})();
+</script>
+<!-- ==== END: Results refresh hooks ==== -->
+</body>
+</html>

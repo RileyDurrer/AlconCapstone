@@ -1,15 +1,16 @@
-import dotenv
 import pandas as pd
 import json
 import os
 
 from openai import OpenAI
 
-dotenv.load_dotenv()
+#Move to controller later
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 STRICTNESS = int(os.getenv("SCORING_STRICTNESS", "5"))
 
-def buildPrompt(marketing_text: str, product: str, strictness=STRICTNESS) -> str:
+
+def buildCompliancePrompt(marketing_text: str, product: str, strictness=STRICTNESS) -> str:
     """
     Builds a grading prompt that:
     - Rewards similarity to Approved Claims
@@ -132,16 +133,16 @@ Return ONLY JSON, no commentary.
 
 ### Output JSON format
 {{
-  "evaluations": [
+    "evaluations": [
     {{
-        "policy_id": "<approved:3 | fda:7 | ftc:5>",
+        "policy_id": "<approved_claim:3 | fda:7 | ftc:5>",
         "policy": "<policy text>",
-      "type": "<approved | fda | ftc>",
-      "grade": <0-100>,
-      "reason": "<brief justification>"
+        "type": "<approved claim | fda | ftc>",
+        "grade": <0-100>,
+        "reason": "<brief justification>"
     }}
-  ],
-  "overall_summary": "<short summary>"
+    ],
+    "overall_summary": "<short summary>"
 }}
 """.strip()
 
@@ -167,6 +168,14 @@ def getCompliancePolicies(product):
 
 
 def getResponseFromLLM(prompt: str) -> dict:
+    """Gets JSON API Response from OPENAI
+
+    Args:
+        prompt (str): prompt created by buildCompliancePrompt 
+
+    Returns:
+        dict: JSON Response that has been stripped
+    """
     response = client.responses.create(
         model="gpt-4.1-mini",
         input=prompt,
@@ -176,3 +185,16 @@ def getResponseFromLLM(prompt: str) -> dict:
     text = text.replace("```json", "").replace("```", "").strip()
 
     return json.loads(text)
+
+#Removes passing policies from JSON and adds compiled scores
+def structureComplianceGrade(response: dict) -> dict:
+    """Removes irrelevent Policies and restructures JSON
+
+    Args:
+        response (dict): Response from getResponceFromLLM
+
+    Returns:
+        dict: Restructured JSON dict
+    """
+    
+    df = pd.DataFrame(response['evaluations'])

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alcon MLR Pre-Screening Agent – Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --alcon-blue:#0072CE;
+      --alcon-blue-600:#035bb0;
+      --bg:#F6F8FB;
+      --text:#1F2937;
+      --muted:#6B7280;
+      --card:#FFFFFF;
+      --border:#E5E7EB;
+      --shadow:0 10px 20px rgba(16,24,40,.06),0 2px 6px rgba(16,24,40,.06);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text);
+      background:var(--bg);
+      line-height:1.45;
+    }
+    /* Top bar */
+    .topbar{
+      background:var(--card);
+      border-bottom:1px solid var(--border);
+      position:sticky;top:0;z-index:50;
+    }
+    .topbar .inner{
+      max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:16px;justify-content:space-between;padding:14px 20px;
+    }
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+    .logo{width:28px;height:28px;border-radius:6px;background:var(--alcon-blue);box-shadow:inset 0 -8px 16px rgba(255,255,255,.25);}
+    .brand span{color:var(--alcon-blue)}
+    .crumbs{font-size:12px;color:var(--muted)}
+    .avatar{width:32px;height:32px;border-radius:999px;background:linear-gradient(135deg,#c7d2fe,#e0e7ff);display:grid;place-items:center;font-weight:600;color:#334155}
+
+    /* Layout */
+    .wrap{max-width:1200px;margin:24px auto 64px;padding:0 20px;}
+    .grid{display:grid;grid-template-columns:1.6fr .8fr;gap:20px;align-items:start;}
+    @media (max-width:960px){.grid{grid-template-columns:1fr}}
+
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
+    .card h3{margin:0 0 8px;font-size:16px}
+    .card .sub{font-size:12px;color:var(--muted)}
+    .pad{padding:18px}
+
+    .section-title{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+    .controls{display:flex;gap:10px;flex-wrap:wrap}
+    select,button,.btn,textarea,input[type="text"]{
+      font-family:inherit;font-size:14px;border-radius:12px;border:1px solid var(--border);
+      padding:10px 12px;background:#fff;color:var(--text);
+    }
+    select:focus,textarea:focus,input:focus,button:focus{outline:3px solid rgba(0,114,206,.18)}
+    .btn-primary{background:var(--alcon-blue);border-color:var(--alcon-blue);color:#fff;cursor:pointer}
+    .btn-primary:hover{background:var(--alcon-blue-600)}
+    .btn-outline{background:#fff;color:var(--alcon-blue);border-color:var(--alcon-blue)}
+
+    .dropzone{
+      border:2px dashed #cfd8e3;border-radius:12px;padding:24px;display:grid;place-items:center;text-align:center;color:var(--muted);gap:6px
+    }
+    .dropzone strong{color:var(--text)}
+
+    .textarea{margin-top:12px}
+    textarea{width:100%;min-height:120px;resize:vertical}
+
+    .footer-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;color:var(--muted);font-size:12px}
+
+    .hint{font-size:13px;color:var(--muted);line-height:1.6}
+    .hint b{color:#111}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+
+    /* === Composer enhancements (non-destructive) === */
+    .composer-wrap{position:relative;border:1px solid var(--border);background:#fff;border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+    .composer-wrap.dragging{outline:2px dashed rgba(0,0,0,.25);outline-offset:-6px}
+    .composer-textarea{width:100%;border:0;resize:vertical;min-height:180px;padding:14px 16px 18px;background:transparent;font:inherit;color:inherit;line-height:1.5}
+    .composer-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-top:1px solid var(--border);background:#fff}
+    .composer-left{display:flex;align-items:center;gap:8px}
+    .composer-plus{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;user-select:none}
+    .composer-plus:hover{background:rgba(0,0,0,.04)}
+    .composer-plus::before{content:'+';font-weight:600;font-size:18px;line-height:1}
+    .composer-hint{color:var(--muted);font-size:12px}
+    .composer-right{display:flex;align-items:center;gap:8px}
+    .composer-close{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;user-select:none}
+    .composer-close:hover{background:rgba(0,0,0,.04)}
+    .composer-close::before{content:'\00D7';font-weight:600;font-size:18px;line-height:1}
+
+    /* Centered filename badge */
+    .filename-badge{
+      margin: 0 auto;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      min-height: 1em;
+      max-width: 60%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Combobox styles (original) */
+    .combo-wrap{position:relative}
+    .combo-input{width:100%;border:1px solid var(--border,#e5e7eb);background:#fff;border-radius:9999px;padding:10px 36px 10px 14px;font:inherit;color:inherit}
+    .combo-ghost{position:absolute;left:14px;right:36px;top:50%;transform:translateY(-50%);pointer-events:none;opacity:.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted,#6b7280);font:inherit}
+    .combo-caret{position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none}
+    .combo-list{position:absolute;z-index:30;left:0;right:0;margin-top:6px;max-height:240px;overflow:auto;background:#fff;border:1px solid var(--border,#e5e7eb);border-radius:12px;box-shadow:var(--shadow,0 8px 30px rgba(0,0,0,.08));display:none;padding:6px 0}
+    .combo-list[aria-hidden="false"]{display:block}
+    .combo-list li{padding:8px 12px;cursor:pointer}
+    .combo-list li[aria-selected="true"],.combo-list li:hover{background:rgba(0,0,0,.04)}
+  </style>
+</head>
+<body>
+  <header class="topbar" role="banner">
+    <div class="inner">
+      <div class="brand" aria-label="Alcon">
+        <div class="logo" aria-hidden="true"></div>
+        <span>Alcon</span>
+        <div class="crumbs">MLR Pre-Screening Agent · Review</div>
+      </div>
+      <div class="avatar" aria-label="User avatar" title="Sarah Chen">SC</div>
+    </div>
+  </header>
+
+  <main class="wrap" role="main">
+    <div class="grid">
+      <!-- LEFT: Content Review -->
+      <section class="card pad" aria-labelledby="content-title">
+        <div class="section-title">
+          <div>
+            <h3 id="content-title">Content Review</h3>
+            <div class="sub">Begin reviewing Alcon marketing content for the MLR official review below.</div>
+          </div>
+          <div class="controls">
+            <label class="sr-only" for="product">Product</label>
+            <select id="product" aria-label="Select product">
+              <option>Clareon PanOptix IOL</option>
+              <option>Total 30 Contact Lens</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Legacy dropzone (kept for look; hidden when composer mounts) -->
+        <div class="dropzone" tabindex="0" aria-label="Drag and drop files here" id="drop">
+          <div>
+            <strong>Drop files here</strong> or click to upload
+            <div class="sub">Supports PDF, DOC, DOCX, TXT (max 10MB)</div>
+          </div>
+        </div>
+
+        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" style="display:none" />
+
+        <div class="textarea">
+          <label class="sr-only" for="paste">Paste promotional content</label>
+          <textarea id="paste" placeholder="Type, paste, or drag and drop content here…"></textarea>
+        </div>
+
+        <div class="footer-row">
+          <div><span id="charCount">0</span>/5000 characters</div>
+          <button class="btn-primary" id="analyze">Analyze Content</button>
+        </div>
+      </section>
+
+      <!-- RIGHT: Helpful tips -->
+      <aside class="card pad">
+        <h3>Tips</h3>
+        <p class="hint">
+          • Keep claims anchored to <b>approved indications</b>.<br>
+          • Avoid <b>superiority language</b> unless substantiated.<br>
+          • Pair benefits with <b>material risk info</b> and context.<br>
+          • Include <b>clear disclaimers</b> and references where needed.
+        </p>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    // Clean start: clear prior filename/text unless share state present (keep product)
+    (function cleanStartUnlessShareState(){
+      const hasShare = new URLSearchParams(location.hash.slice(1)).has('s');
+      if (!hasShare){
+        try {
+          localStorage.removeItem('mlr_upload_name');
+          localStorage.removeItem('mlr_text');
+        } catch {}
+      }
+    })();
+
+    const textarea = document.getElementById('paste');
+    const charCount = document.getElementById('charCount');
+    const analyzeBtn = document.getElementById('analyze');
+    const product = document.getElementById('product');
+    const drop = document.getElementById('drop');
+    const fileInput = document.getElementById('fileInput');
+
+    // live counter
+    textarea.addEventListener('input', () => {
+      charCount.textContent = textarea.value.length;
+      try{ localStorage.setItem('mlr_text', textarea.value); }catch{}
+    });
+
+    // keep legacy dropzone clickable
+    drop.addEventListener('click', () => { fileInput.value=''; fileInput.click(); });
+    drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.style.borderColor = '#a5b4fc'; });
+    drop.addEventListener('dragleave', () => { drop.style.borderColor = '#cfd8e3'; });
+
+    analyzeBtn.addEventListener('click', () => {
+      const text = textarea.value.trim();
+      const prod = product.value;
+      localStorage.setItem('mlr_text', text);
+      localStorage.setItem('mlr_product', prod);
+      window.location.href = 'results.html';
+    });
+  </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  // ===== Chat-style composer (keeps look) =====
+  (function composer(){
+    const textarea = document.getElementById('paste'); if (!textarea) return;
+    const oldDrop  = document.getElementById('drop'); if (oldDrop) oldDrop.style.display='none';
+    const fileInput= document.getElementById('fileInput');
+
+    const wrap = document.createElement('div'); wrap.className='composer-wrap';
+    textarea.classList.add('composer-textarea'); textarea.placeholder='Type, paste, or drag and drop content here…';
+    const bar  = document.createElement('div'); bar.className='composer-bar';
+    const left = document.createElement('div'); left.className='composer-left';
+    const plus = document.createElement('button'); plus.type='button'; plus.className='composer-plus'; plus.title='Upload file'; plus.setAttribute('aria-label','Upload file'); plus.addEventListener('click',()=>{ fileInput.value=''; fileInput.click(); }); left.appendChild(plus);
+    const hint = document.createElement('span'); hint.className='composer-hint'; hint.textContent='Upload file'; left.appendChild(hint);
+
+    // Centered filename badge
+    const badge = document.createElement('span'); badge.id='fileBadge'; badge.className='filename-badge';
+
+    const right= document.createElement('div'); right.className='composer-right';
+    const clearHint = document.createElement('span'); clearHint.className='composer-hint'; clearHint.textContent='Clear file'; right.appendChild(clearHint);
+    const closeBtn = document.createElement('button'); closeBtn.className='composer-close'; closeBtn.type='button'; closeBtn.title='Remove attachment'; closeBtn.setAttribute('aria-label','Remove attachment'); right.appendChild(closeBtn);
+
+    bar.appendChild(left);
+    bar.appendChild(badge);   // centered
+    bar.appendChild(right);
+
+    const parent = textarea.parentNode; parent.insertBefore(wrap, textarea); wrap.appendChild(textarea); wrap.appendChild(bar);
+
+    function insertAtCursor(el, text){
+      const start = el.selectionStart ?? el.value.length;
+      const end   = el.selectionEnd ?? el.value.length;
+      const before = el.value.slice(0, start);
+      const after  = el.value.slice(end);
+      const needsLeadingNewline = before && !before.endsWith('\\n');
+      const insertion = (needsLeadingNewline ? '\\n' : '') + text;
+      el.value = before + insertion + after;
+      const newPos = (before + insertion).length;
+      el.selectionStart = el.selectionEnd = newPos;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function handleFileOnce(file){
+      if (!file) return;
+      try{ localStorage.setItem('mlr_upload_name', file.name);}catch{};
+      badge.textContent = file.name;
+      insertAtCursor(textarea, file.name); // insert ONLY filename into textarea once
+    }
+
+    // Single change handler
+    fileInput.addEventListener('change', ()=>{
+      const f = fileInput.files && fileInput.files[0];
+      handleFileOnce(f);
+    });
+
+    // Drag/drop within composer
+    ['dragenter','dragover'].forEach(evt=>wrap.addEventListener(evt, e=>{ e.preventDefault(); wrap.classList.add('dragging'); }));
+    ['dragleave','drop'].forEach(evt=>wrap.addEventListener(evt, e=>{ e.preventDefault(); wrap.classList.remove('dragging'); }));
+    wrap.addEventListener('drop', e=>{
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      handleFileOnce(f);
+    });
+
+    function clearAttachment(){
+      const name = (localStorage.getItem('mlr_upload_name') || '').trim();
+      try { localStorage.removeItem('mlr_upload_name'); } catch {}
+      badge.textContent = '';
+      if (name){
+        const re = new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+        textarea.value = (textarea.value || '').replace(re, '');
+        textarea.value = textarea.value.replace(/\\n{3,}/g, '\\n\\n');
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      textarea.focus();
+    }
+    closeBtn.addEventListener('click', clearAttachment);
+
+    // Hydrate product & text only if share state present
+    const hasShare = new URLSearchParams(location.hash.slice(1)).has('s');
+    if (hasShare){
+      const savedText = localStorage.getItem('mlr_text') || '';
+      if (savedText){ textarea.value = savedText; textarea.dispatchEvent(new Event('input', {bubbles:true})); }
+      const savedName = localStorage.getItem('mlr_upload_name');
+      if (savedName){ badge.textContent = savedName; }
+    }
+  })();
+
+  // ===== Product combobox (ORIGINAL CODE RESTORED) =====
+  (function productCombo(){
+    const sel = document.getElementById('product'); if(!sel) return;
+    // Insert wrapper before select
+    const wrap=document.createElement('div'); wrap.className='combo-wrap'; wrap.setAttribute('role','combobox'); wrap.setAttribute('aria-haspopup','listbox'); wrap.setAttribute('aria-expanded','false'); wrap.setAttribute('aria-owns','product-listbox');
+    const input=document.createElement('input'); input.id='productInput'; input.className='combo-input'; input.type='text'; input.autocomplete='off'; input.placeholder='Select Product…'; input.setAttribute('aria-autocomplete','both'); input.setAttribute('aria-controls','product-listbox');
+    const ghost=document.createElement('div'); ghost.id='productGhost'; ghost.className='combo-ghost'; ghost.setAttribute('aria-hidden','true');
+    const caret=document.createElement('div'); caret.className='combo-caret'; caret.innerHTML='&#9662;';
+    const list=document.createElement('ul'); list.id='product-listbox'; list.className='combo-list'; list.setAttribute('role','listbox'); list.setAttribute('aria-hidden','true');
+    sel.parentNode.insertBefore(wrap, sel); wrap.appendChild(input); wrap.appendChild(ghost); wrap.appendChild(caret); wrap.appendChild(list);
+    sel.style.display='none'; // hide native select
+
+    const PRODUCTS=[]; for(const opt of sel.options){ if(opt.text) PRODUCTS.push(opt.text.trim()); }
+    const norm=s=>(s||'').toLowerCase().normalize('NFKD');
+    function filter(q){ const nq=norm(q); if(!nq) return PRODUCTS.slice(0,50); const a=[],b=[]; for(const p of PRODUCTS){ const np=norm(p); if(np.startsWith(nq)) a.push(p); else if(np.includes(nq)) b.push(p);} return a.concat(b).slice(0,50); }
+    function setExpanded(open){ wrap.setAttribute('aria-expanded', String(!!open)); list.setAttribute('aria-hidden', String(!open)); }
+    function render(items, active=-1){ list.innerHTML=''; items.forEach((label,i)=>{ const li=document.createElement('li'); li.role='option'; li.id='product-opt-'+i; li.textContent=label; if(i===active) li.setAttribute('aria-selected','true'); li.addEventListener('mousedown',e=>{ e.preventDefault(); commit(label); }); list.appendChild(li); }); /* no auto open */ }
+    function updateGhost(pred){ if(document.activeElement!==input || !input.value){ ghost.textContent=''; return; } const q=input.value; if(!pred || norm(pred).indexOf(norm(q))!==0){ ghost.textContent=''; return;} ghost.textContent=q+pred.slice(q.length); }
+    function commit(value){ input.value=value; ghost.textContent=''; // sync to hidden select & storage
+      for(let i=0;i<sel.options.length;i++){ if(sel.options[i].text.trim()===value){ sel.selectedIndex=i; break; } }
+      try{ localStorage.setItem('mlr_product', value);}catch{} setExpanded(false);
+    }
+    let items=filter(''), active=-1; render(items,active);
+    input.addEventListener('focus', ()=>{ items=filter(input.value); active=-1; render(items,active); setExpanded(true); });
+    input.addEventListener('input', ()=>{ items=filter(input.value); active=-1; render(items,active); updateGhost(items[0]); setExpanded(true); });
+    input.addEventListener('keydown', e=>{ const k=e.key; if(k==='ArrowDown'){ e.preventDefault(); if(!items.length) return; active=(active+1)%items.length; render(items,active);} else if(k==='ArrowUp'){ e.preventDefault(); if(!items.length) return; active=(active-1+items.length)%items.length; render(items,active);} else if(k==='Enter'){ if(active>=0 && items[active]){ e.preventDefault(); commit(items[active]); } else if(items[0]){ e.preventDefault(); commit(items[0]); } } else if(k==='Tab'){ if(ghost.textContent && items[0]) commit(items[0]); } else if(k==='Escape'){ setExpanded(false); active=-1;} });
+    document.addEventListener('click', e=>{ if(!wrap.contains(e.target)) setExpanded(false); });
+    caret.addEventListener('click', e=>{ e.stopPropagation(); if(list.getAttribute('aria-hidden')==='true'){ items=filter(input.value); render(items,active); setExpanded(true); input.focus(); } else setExpanded(false); });
+  })();
+});
+</script>
+</body>
+</html>
