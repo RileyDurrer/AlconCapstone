@@ -4,26 +4,22 @@ import os
 
 from openai import OpenAI
 
-#Move to controller later
+def buildCompliancePrompt(marketing_text: str, policies: dict, strictness: int):
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-STRICTNESS = int(os.getenv("SCORING_STRICTNESS", "5"))
-
-
-def buildCompliancePrompt(marketing_text: str, product: str, strictness=STRICTNESS) -> str:
     """
     Builds a grading prompt that:
     - Rewards similarity to Approved Claims
     - Enforces compliance with FDA + FTC policies
     - Returns IDs so caller can map response -> original DataFrame rows
     """
-    approved, fda, ftc = getCompliancePolicies(product)
+    
+    
+    approved = policies["approved"].reset_index(drop=True)
+    fda = policies["fda"].reset_index(drop=True)
+    ftc = policies["ftc"].reset_index(drop=True)
+    
 
-    # Clean + index for traceability
-    approved = approved.reset_index(drop=True)
-    fda      = fda.reset_index(drop=True)
-    ftc      = ftc.reset_index(drop=True)
-
+    # Add policy_id columns
     approved["policy_id"] = approved.index
     fda["policy_id"]      = fda.index
     ftc["policy_id"]      = ftc.index
@@ -111,6 +107,7 @@ Evaluate how similar the marketing text is to each approved claim.
 
 ### FDA / FTC Policies
 These reflect regulatory requirements.
+if it scores above a 85 it will be filtered out by the structureComplianceGrade function so it should only get that score if the user doesn't need to worry about it.
 
 - Fully compliant or unrelated → 80–100
 - Minor risk or unclear compliance → 60–80
@@ -149,25 +146,30 @@ Return ONLY JSON, no commentary.
     return prompt
 
 
-def getCompliancePolicies(product):
+
+def load_product_policies(product: str):
     """
     Loads all CSV files under ./compliance_docs/{product}_compliance/
     Returns: {file_stem: DataFrame}
     """
-    base_dir = os.getcwd()                 # folder of this .py
-    folder = os.path.join(base_dir, "compliance_docs", f"{product}_compliance")
+    base = os.getcwd()
+    folder = os.path.join(base, "compliance_docs", f"{product}_compliance")
 
     if not os.path.exists(folder):
-        raise FileNotFoundError(f"Product folder not found: {folder}")
-    
-    approved_claims = pd.read_csv(os.path.join(folder, "ApprovedClaims.csv"))
-    fda      = pd.read_csv(os.path.join(folder, "FDAPolicies.csv"))
-    ftc      = pd.read_csv(os.path.join(folder, "FTCPolicies.csv"))
+        raise FileNotFoundError(f"Policies for '{product}' not found in: {folder}")
 
-    return approved_claims, fda, ftc
+    approved = pd.read_csv(os.path.join(folder, "ApprovedClaims.csv"))
+    fda = pd.read_csv(os.path.join(folder, "FDAPolicies.csv"))
+    ftc = pd.read_csv(os.path.join(folder, "FTCPolicies.csv"))
+
+    return {
+        "approved": approved,
+        "fda": fda,
+        "ftc": ftc
+    }
 
 
-def getResponseFromLLM(prompt: str) -> dict:
+def getResponseFromLLM(prompt: str, client) -> dict:
     """Gets JSON API Response from OPENAI
 
     Args:
@@ -188,13 +190,64 @@ def getResponseFromLLM(prompt: str) -> dict:
 
 #Removes passing policies from JSON and adds compiled scores
 def structureComplianceGrade(response: dict) -> dict:
-    """Removes irrelevent Policies and restructures JSON
+    ignoreScore = 85
+    df = pd.DataFrame(response["evaluations"])
 
-    Args:
-        response (dict): Response from getResponceFromLLM
+    # SAFETY: derive type from policy_id
+    df["type"] = df["policy_id"].str.split(":").str[0]
 
-    Returns:
-        dict: Restructured JSON dict
-    """
-    
-    df = pd.DataFrame(response['evaluations'])
+    # Filter relevant
+    passing_mask = (
+        (df["type"] != "approved") &
+        ~(
+            ((df["type"] == "fda") | (df["type"] == "ftc")) &
+            (df["grade"] >= ignoreScore)
+        )
+    )
+
+    df_filtered = df[passing_mask].sort_values(
+        by="grade", ascending=True
+    )
+
+    # Convert early → pure Python
+    filtered_list = df_filtered.to_dict(orient="records")
+
+    # Approved logic
+    approved_df = df[df["type"] == "approved"]
+    approved_score = (
+        int(approved_df["grade"].max()) if not approved_df.empty else 0
+    )
+
+    approved_matches_df = approved_df[approved_df["grade"] >= 50]
+    approved_matches = approved_matches_df.to_dict(orient="records")
+
+    approved_match_summary = (
+        "Matched approved claims found."
+        if approved_matches else
+        "No matching approved claims."
+    )
+
+    # Score logic
+    def compute_category_score(df, category, threshold=70):
+        scores = df[df["type"] == category]["grade"]
+        if scores.empty:
+            return 0
+        base = float(scores.mean())
+        penalty = float((scores < threshold).mean() * 100)
+        return max(0, min(100, base - penalty))
+
+    fda_score = compute_category_score(df, "fda")
+    ftc_score = compute_category_score(df, "ftc")
+
+    # Return everything JSON-safe and clean
+    return {
+        "scores": {
+            "approved": approved_score,
+            "fda": fda_score,
+            "ftc": ftc_score,
+        },
+        "filtered_evaluations": filtered_list,
+        "approved_matches": approved_matches,
+        "approved_match_summary": approved_match_summary,
+        "overall_summary": response.get("overall_summary", ""),
+    }
