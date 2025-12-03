@@ -197,4 +197,4 @@ Exportable audit summaries
 
 ## Contact:
 If you need help extending or integrating the system, message anytime. 
-email: milomi686@gmail.com
+https://www.linkedin.com/in/rileydurrer/
