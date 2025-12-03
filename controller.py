@@ -5,7 +5,7 @@ import json
 import pandas as pd
 from openai import OpenAI
 
-from complianceGrader import buildCompliancePrompt, getResponseFromLLM, structureComplianceGrade, load_product_policies
+from complianceGrader import buildCompliancePrompt, get_response_from_LLM, structure_compliance_grade, load_product_policies
 from chatbot import getChatbotResponse
 
 dotenv.load_dotenv()
@@ -69,8 +69,8 @@ class ComplianceController:
             strictness=self.strictness
         )
 
-        result = getResponseFromLLM(prompt, self.client)
-        compliance = structureComplianceGrade(result)
+        result = get_response_from_LLM(prompt, self.client)
+        compliance = structure_compliance_grade(result)
 
         # Update semantic memory
         self.state["previous_compliance"] = self.state["last_compliance"]

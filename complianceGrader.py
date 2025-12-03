@@ -170,7 +170,7 @@ def load_product_policies(product: str):
     }
 
 
-def getResponseFromLLM(prompt: str, client) -> dict:
+def get_response_from_LLM(prompt: str, client) -> dict:
     """Gets JSON API Response from OPENAI
 
     Args:
@@ -190,7 +190,7 @@ def getResponseFromLLM(prompt: str, client) -> dict:
     return json.loads(text)
 
 #Removes passing policies from JSON and adds compiled scores
-def structureComplianceGrade(response: dict) -> dict:
+def structure_compliance_grade(response: dict) -> dict:
     ignoreScore = 90
     df = pd.DataFrame(response["evaluations"])
 
