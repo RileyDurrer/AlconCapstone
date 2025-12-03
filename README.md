@@ -159,7 +159,8 @@ pip install -r requirements.txt
 ## Using the Controller in a Script
 
 from controller import ComplianceController
-ctrl = ComplianceController(product="TOTAL30")
+ctrl = ComplianceController
+ctrl.load_product_policies(TOTAL30)
 material = "Feels great all month."
 result = ctrl.run_compliance_check(material)
 print(result)
