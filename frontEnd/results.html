@@ -39,7 +39,11 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 .grid{max-width:1200px;width:100%;margin:0 auto;padding:16px}
 
 /* Cards */
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:20px
+  display:flex;
+  flex-direction:column;
+}
+
 .card h3{margin:0 0 8px;font-size:18px}
 .sub{font-size:12px;color:var(--muted)}
 .section-title{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
@@ -98,10 +102,10 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 
 /* Mini Chat */
 .chat{
-  margin-top:auto;
+  margin-top:0;
   display:flex;
   flex-direction:column;
-  height:220px;
+  flex:1;
   border-top:1px solid var(--border);
   padding-top:12px;
   gap:8px;
@@ -127,7 +131,11 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 
 .msg.bot{
   align-self:flex-start;
-  background:#F8FAFC;
+  background:#EEF2FF;
+  border-color:#E0EAFF;
+  max-width:100%;
+  font-size:15px;
+  padding:16px 18px;
 }
 
 .msg.user{
@@ -171,11 +179,40 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 .chat-input button:hover{
   background:var(--alcon-blue-600);
 }
+        <!-- Feedback / Report Issue Widget -->
+      <div class="feedback-widget no-export">
+        <div class="fb-tabs">
+          <button class="fb-tab fb-tab-active" data-mode="feedback">Feedback</button>
+          <button class="fb-tab" data-mode="issue">Report Issue</button>
+        </div>
+
+        <div class="fb-card" id="fbPanelFeedback">
+          <div class="fb-row">
+            <span>Was this analysis helpful?</span>
+            <div class="fb-actions">
+              <button class="fb-pill" onclick="submitFeedback('helpful')">Yes</button>
+              <button class="fb-pill" onclick="submitFeedback('not_helpful')">No</button>
+            </div>
+          </div>
+          <div class="fb-thanks" id="fbThanks" style="display:none;">
+            Thanks for your feedback.
+          </div>
+        </div>
+
+        <div class="fb-card" id="fbPanelIssue" style="display:none;">
+          <label class="fb-label" for="fbIssueText">Tell us what seems incorrect or missing:</label>
+          <textarea id="fbIssueText" class="fb-textarea" rows="2"
+            placeholder="E.g., a claim was flagged incorrectly, or a recommendation doesn’t fit MLR guidance."></textarea>
+          <div class="fb-row">
+            <button class="fb-pill primary" onclick="submitIssue()">Submit</button>
+            <span class="fb-thanks" id="fbIssueThanks" style="display:none;">
+              Issue recorded. Thank you.
+            </span>
+          </div>
+        </div>
+      </div>
+
 /* Export footer (anchored, non-floating) */
-
-
-
-
 .export-footer {
   position: absolute;
   left: 50%;
@@ -261,19 +298,50 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
   padding-bottom: 100px; /* reserve space so button doesn't overlap content */
 }
 
-
 #resultsContainer{
   position: relative;
   padding-bottom: 100px; /* space for the button */
 }
 
+
+.quote-list{
+  margin:8px 0 0 16px;
+  padding-left:4px;
+  color:#111;
+  font-size:13px;
+}
+.quote-list li{
+  margin-bottom:4px;
+  font-style:italic;
+}
+.citations ul{
+  margin:4px 0 0 18px;
+  padding-left:4px;
+}
+/* Align detailed-analysis severity chips to donut status colors */
+.sev.moderate{
+  background:#ECFDF5;
+  color:#065F46;
+  border:1px solid var(--green);
+}
+
+.flagged-phrase{
+  font-size:16px;
+  line-height:1.4;
+}
+
+.issue-expl{
+  margin-top:4px;
+  font-size:13px;
+  color:#555;
+}
 </style>
 </head>
 <body>
 <header class="topbar" role="banner">
   <div class="inner">
     <div class="brand"><div class="logo" aria-hidden="true"></div><span>Alcon</span><div class="crumbs">MLR Pre‑Screening Agent · Results</div></div>
-    <div class="avatar" title="Sarah Chen">SC</div>
+    <div class="avatar" title="Jenna Cope">JC</div>
   </div>
 </header>
 
@@ -311,9 +379,9 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
             <div class="donut" id="donut"><div class="ring"></div><div class="num" id="scoreNum">—</div></div>
             <div>
               <div class="legend">
-                <div class="legend-item"><span class="dot green"></span> Strong (85–100)</div>
-                <div class="legend-item"><span class="dot amber"></span> Needs review (70–84)</div>
-                <div class="legend-item"><span class="dot red"></span> High risk (&lt;70)</div>
+                <div class="legend-item"><span class="dot green"></span> Low Risk (85–100)</div>
+                <div class="legend-item"><span class="dot amber"></span> Needs Review (70–84)</div>
+                <div class="legend-item"><span class="dot red"></span> High Risk (&lt;70)</div>
               </div>
               <div id="statusBubble" class="bubble amber">Status: …</div>
             </div>
@@ -327,8 +395,9 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
           <div style="margin-top:8px">
             <div class="std-row"><span>FDA Compliance</span><div class="bar"><i id="barFDA"></i></div><span id="pctFDA">—% compliant</span></div>
             <div class="std-row"><span>FTC Compliance</span><div class="bar"><i id="barFTC"></i></div><span id="pctFTC">—% compliant</span></div>
-            <div class="std-row"><span>MLR Compliance</span><div class="bar"><i id="barMLR"></i></div><span id="pctMLR">—% compliant</span></div>
-            <div class="std-row"><span>Internal Standards</span><div class="bar"><i id="barINT"></i></div><span id="pctINT">—% compliant</span></div>
+            <div class="std-row"><span>Medical Review</span><div class="bar"><i id="barMLR_MED"></i></div><span id="pctMLR_MED">—% compliant</span></div>
+            <div class="std-row"><span>Legal Review</span><div class="bar"><i id="barMLR_LEGAL"></i></div><span id="pctMLR_LEGAL">—% compliant</span></div>
+            <div class="std-row"><span>Regulatory Review</span><div class="bar"><i id="barMLR_REG"></i></div><span id="pctMLR_REG">—% compliant</span></div>
           </div>
         </div>
 
@@ -341,15 +410,15 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 
         <!-- Recommendations -->
         <div class="card card-square" id="recsCard">
-          <h3>Recommendations</h3>
-          <div class="sub">Drafted alternatives and language to consider. Confirm with MLR before use.</div>
-          <div id="recsWrap" style="margin-top:8px"></div>
+          <h3>Chat Bot Recommendations</h3>
+          <div class="sub">Learn how to improve compliance through guided recommendations.</div>
+          <div id="recsWrap" style="margin-top:0"></div>
 
           <!-- Chat is excluded from export via .no-export -->
           <div class="chat no-export" aria-label="Ask about these results">
             <div class="chat-log" id="chatLog"></div>
             <div class="chat-input">
-              <input id="chatInput" type="text" placeholder="Ask why an item was flagged or how to phrase it…" aria-label="Chat input">
+              <input id="chatInput" type="text" placeholder="Ask why something was flagged or for new wording…" aria-label="Chat input">
               <button id="chatSend">Send</button>
             </div>
           </div>
@@ -429,9 +498,6 @@ const SUGGESTIONS = {
   guarantee: [
     {title:'Avoid guarantees or promises', text:'Use qualified phrasing (e.g., “may help improve…”) and include nearby variability language.'}
   ],
-  perfect: [
-    {title:'Avoid “perfect vision”', text:'Use specific, data‑anchored benefits (e.g., “provides near and intermediate vision”) and include fair balance.'}
-  ],
   no_glasses: [
     {title:'Don’t imply “no glasses”', text:'Use qualified phrasing such as “designed to reduce dependence on glasses; individual results vary.”'}
   ]
@@ -447,68 +513,198 @@ function extractIssues(text){
   return out;
 }
 
+
 function scoreFrom(text){
   const len = (text && text.length) ? text.length : 1;
   let base = Math.min(96, Math.max(42, Math.round(42 + Math.log(len) * 10)));
   const foundIssues = extractIssues(text);
 
-  let fda  = Math.max(50, Math.min(95, base - 6));
-  let ftc  = Math.max(55, Math.min(96, base - 2));
-  let mlr  = Math.max(55, Math.min(97, base + 2));
-  let intl = Math.max(60, Math.min(98, base + 8));
+  // Core baselines
+  let fda       = Math.max(50, Math.min(95, base - 6));
+  let ftc       = Math.max(55, Math.min(96, base - 2));
+  let mlrBase   = Math.max(55, Math.min(97, base + 2));
 
-  if (foundIssues.some(i => i.id==='superiority')){ fda-=12; ftc-=10; mlr-=9; }
-  if (foundIssues.some(i => i.id==='guarantee')){ ftc-=6; mlr-=4; intl-=3; }
-  if (foundIssues.some(i => i.id==='perfect')){ fda-=6; mlr-=5; }
-  if (foundIssues.some(i => i.id==='no_glasses')){ ftc-=6; mlr-=5; fda-=4; }
+  // Split MLR into Medical / Legal / Regulatory views
+  let mlrMed    = Math.max(55, Math.min(97, mlrBase - 2));
+  let mlrLegal  = Math.max(55, Math.min(97, mlrBase));
+  let mlrReg    = Math.max(55, Math.min(97, mlrBase + 2));
+
+  // Issue-driven adjustments (same logic, applied across MLR facets)
+  if (foundIssues.some(i => i.id==='superiority')){
+    fda     -= 12;
+    ftc     -= 10;
+    mlrMed  -= 9;
+    mlrLegal-= 9;
+    mlrReg  -= 9;
+  }
+  if (foundIssues.some(i => i.id==='guarantee')){
+    ftc     -= 6;
+    mlrMed  -= 4;
+    mlrLegal-= 4;
+    mlrReg  -= 4;
+  }
+  if (foundIssues.some(i => i.id==='perfect')){
+    fda     -= 6;
+    mlrMed  -= 5;
+    mlrLegal-= 5;
+    mlrReg  -= 5;
+  }
+  if (foundIssues.some(i => i.id==='no_glasses')){
+    ftc     -= 6;
+    mlrMed  -= 5;
+    mlrLegal-= 5;
+    mlrReg  -= 5;
+    fda     -= 4;
+  }
 
   const clamp = v => Math.max(0, Math.min(100, Math.round(v)));
-  fda=clamp(fda); ftc=clamp(ftc); mlr=clamp(mlr); intl=clamp(intl);
-  const overall = clamp(fda*0.40 + ftc*0.25 + mlr*0.20 + intl*0.15);
-  return {fda, ftc, mlr, intl, overall, issues:foundIssues};
+  fda      = clamp(fda);
+  ftc      = clamp(ftc);
+  mlrMed   = clamp(mlrMed);
+  mlrLegal = clamp(mlrLegal);
+  mlrReg   = clamp(mlrReg);
+
+  // Overall blends FDA/FTC with each MLR perspective
+  const overall = clamp(
+    fda * 0.35 +
+    ftc * 0.20 +
+    mlrMed * 0.15 +
+    mlrLegal * 0.15 +
+    mlrReg * 0.15
+  );
+
+  return { fda, ftc, mlrMed, mlrLegal, mlrReg, overall, issues: foundIssues };
 }
-function renderBreakdown({fda, ftc, mlr, intl}){
-  const rows=[['FDA',fda],['FTC',ftc],['MLR',mlr],['INT',intl]];
-  for(const [id,val] of rows){
-    document.getElementById('pct'+id).textContent = val + '% compliant';
-    document.getElementById('bar'+id).style.width = val + '%';
+
+
+function renderBreakdown({ fda, ftc, mlrMed, mlrLegal, mlrReg }){
+  const rows = [
+    ['FDA', fda],
+    ['FTC', ftc],
+    ['MLR_MED', mlrMed],
+    ['MLR_LEGAL', mlrLegal],
+    ['MLR_REG', mlrReg]
+  ];
+  for (const [id, val] of rows){
+    const pctEl = document.getElementById('pct' + id);
+    const barEl = document.getElementById('bar' + id);
+    if (pctEl) pctEl.textContent = (val ?? 0) + '% compliant';
+    if (barEl) barEl.style.width = (val ?? 0) + '%';
   }
 }
+
 const donut=document.getElementById('donut');
 const scoreNum=document.getElementById('scoreNum');
 const statusBubble=document.getElementById('statusBubble');
 function renderDonut(pct){
   scoreNum.textContent=pct;
   donut.style.setProperty('--deg',(pct*3.6)+'deg');
-  if(pct>=85){ donut.style.setProperty('--color','var(--green)'); statusBubble.className='bubble green'; statusBubble.textContent='Strong – compliant'; }
-  else if(pct>=70){ donut.style.setProperty('--color','var(--amber)'); statusBubble.className='bubble amber'; statusBubble.textContent='Needs review – some issues'; }
-  else { donut.style.setProperty('--color','var(--red)'); statusBubble.className='bubble red'; statusBubble.textContent='High risk – multiple critical issues'; }
+  if(pct>=85){ donut.style.setProperty('--color','var(--green)'); statusBubble.className='bubble green'; statusBubble.textContent='Low Risk – compliant'; }
+  else if(pct>=70){ donut.style.setProperty('--color','var(--amber)'); statusBubble.className='bubble amber'; statusBubble.textContent='Needs Review – some issues'; }
+  else { donut.style.setProperty('--color','var(--red)'); statusBubble.className='bubble red'; statusBubble.textContent='High risk – critical issues '; }
 }
 function el(tag,attrs={},html=''){ const n=document.createElement(tag); Object.entries(attrs).forEach(([k,v])=>{ if(k==='class') n.className=v; else n.setAttribute(k,v); }); if(html) n.innerHTML=html; return n; }
+
+
 function renderIssues(issues){
-  const wrap=document.getElementById('issuesWrap'); wrap.innerHTML='';
+  const wrap=document.getElementById('issuesWrap'); 
+  wrap.innerHTML='';
   const sub=document.getElementById('detailSub');
   const countEl=document.getElementById('detailCount');
-  if(!issues.length){ sub.textContent='No critical patterns detected. Review suggested for risks & references.'; countEl.textContent=''; return; }
+
+  if(!issues.length){
+    sub.textContent = 'No high-risk patterns were detected in this content.';
+    countEl.textContent = '';
+    return;
+  }
+
   sub.textContent='';
   countEl.textContent = `• ${issues.length} issue${issues.length>1?'s':''}`;
+
   issues.forEach(issue=>{
-    const box=el('div',{class:'issue'});
-    const head=el('div',{class:'issue-head'});
-    const sev=el('span',{class:`sev ${issue.severity}`}, issue.severity==='critical'?'Critical':issue.severity==='high'?'High':'Moderate');
-    const title=el('strong',{},issue.title);
-    head.append(sev,title);
-    issue.standards.forEach(s=>head.append(el('span',{class:'tag'},s)));
+    const box = el('div',{class:'issue'});
+
+    // --- Severity bubble line (row 1) ---
+    const head = el('div',{class:'issue-head'});
+    let effSeverity = issue.severity || 'high';
+
+    // Escalate certain rules (e.g., guarantees, perfect vision) to critical visually
+    if(issue.id === 'guarantee' || issue.id === 'perfect'){
+      effSeverity = 'critical';
+    }
+
+    let severityLabel;
+    if(effSeverity === 'critical'){ severityLabel='High risk'; }
+    else if(effSeverity === 'high'){ severityLabel='Needs review'; }
+    else { severityLabel='Strong'; }
+
+    const sev = el('span',{class:`sev ${effSeverity}`}, severityLabel);
+    head.append(sev);
     box.append(head);
-    issue.quotes.forEach(q=>box.append(el('div',{class:'quote'},'“'+q+'”')));
-    const cites=el('div',{class:'citations'}); cites.innerHTML='<strong>Citations:</strong> '+issue.citations.join(' · ');
-    box.append(cites);
+
+    // --- Flagged phrases (row 2+) as numbered, BOLD & LARGER list ---
+    if(issue.quotes && issue.quotes.length){
+      const list = el('ol',{class:'quote-list'});
+      issue.quotes.forEach(q=>{
+        const li = el('li',{class:'flagged-phrase'});
+        li.append(el('strong',{},'“'+q+'”'));
+        list.append(li);
+      });
+      box.append(list);
+    }
+
+    // --- Explanation: Issue type only (no repeated phrase) ---
+    if(issue.title){
+      const cleanTitle = issue.title.replace(/\(.*?\)/g,'').trim();
+      const expl = el('div',{class:'issue-expl'}, 'Issue: ' + cleanTitle);
+      box.append(expl);
+    }
+
+    // --- Citations as clean bullets, with Medical / Legal / Regulatory split ---
+    if(issue.citations && issue.citations.length){
+      const cites = el('div',{class:'citations'});
+      const label = el('strong',{},'Citations:');
+      const ul = el('ul');
+
+      issue.citations.forEach(c=>{
+        if(!c){ return; }
+        let txt = c;
+
+        if(txt.startsWith('MLR:')){
+          let raw = txt.replace('MLR:','').trim();
+          raw = raw.replace(/^.*?–\s*/,''); 
+
+          const parts = raw.split(';');
+          if(parts.length > 1){
+            const first = parts[0].trim();   
+            const second = parts.slice(1).join(';').trim();
+
+            if(first){
+              ul.append(el('li',{},'Legal: '+first));
+            }
+            if(second){
+              ul.append(el('li',{},'Medical: '+second));
+            }
+          } else {
+            if(raw){
+              ul.append(el('li',{},'Regulatory: '+raw));
+            }
+          }
+        } else {
+          ul.append(el('li',{},txt));
+        }
+      });
+
+      cites.append(label, ul);
+      box.append(cites);
+    }
+
     wrap.append(box);
   });
 }
 function renderRecs(issues){
   const wrap=document.getElementById('recsWrap'); wrap.innerHTML='';
-  if(!issues.length){ wrap.innerHTML = '<div class="rec"><strong>No high‑risk items.</strong> Consider a brief disclaimer near key performance statements.</div>'; return; }
+  if(!issues.length){ return; }
   issues.forEach(issue=>{
     const ideas=(SUGGESTIONS[issue.id]||[]);
     ideas.forEach(idea=>{
@@ -534,33 +730,197 @@ btn.addEventListener('click',()=>{
 });
 
 // Mini Chat logic (excluded from export via .no-export)
-const chatLog=document.getElementById('chatLog');
-const chatInput=document.getElementById('chatInput');
-const chatSend=document.getElementById('chatSend');
-function push(role, text){ const m=el('div',{class:'msg '+role}, text); chatLog.append(m); chatLog.scrollTop = chatLog.scrollHeight; }
-function explainers(){ return {
-  superiority: 'Superlatives imply overall superiority; FDA 21 CFR 202.1(e) and FTC policy require robust comparative evidence.',
-  guarantee: 'Outcome guarantees are typically misleading without strong substantiation and fair balance (FTC/MLR).',
-  perfect: '“Perfect vision” is absolute outcome language; use specific, balanced claims per FDA/MLR.',
-  no_glasses: 'Eliminating glasses is often unrealistic; qualify dependence reduction and variability.'
-}; }
-function handleChat(q, issues){
-  const s=q.toLowerCase(); const ex=explainers();
-  if(s.includes('why')||s.includes('flag')){
-    if(s.includes('advanced')||s.includes('safest')||s.includes('best')) return ex.superiority;
-    if(s.includes('guarantee')) return ex.guarantee;
-    if(s.includes('perfect')) return ex.perfect;
-    if(s.includes('glasses')) return ex.no_glasses;
-    return issues.length ? `I flagged: ${issues.map(i=>i.title).join('; ')}.` : 'No specific flags found.';
-  }
-  if(s.includes('rewrite')||s.includes('how')||s.includes('fix')||s.includes('acceptable')){
-    return 'Try removing superlatives, avoid guarantees, and use qualified, indication‑anchored phrasing with nearby risk/variability statements. See the recommendations above.';
-  }
-  return 'Ask “why was <phrase> flagged?” or “how should I rewrite this?”';
+const chatLog = document.getElementById('chatLog');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+
+function push(role, text) {
+  const m = el('div', { class: 'msg ' + role }, text);
+  chatLog.append(m);
+  chatLog.scrollTop = chatLog.scrollHeight;
 }
-push('bot','Hi! Ask why something was flagged, or how to phrase it more safely.');
-if(chatSend){ chatSend.addEventListener('click',()=>{ const q=chatInput.value.trim(); if(!q) return; push('user', q); chatInput.value=''; setTimeout(()=>push('bot', handleChat(q, extractIssues(editor.value))), 180); }); }
-if(chatInput){ chatInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ chatSend.click(); }}); }
+
+function explainers() {
+  return {
+    superiority: 'This language suggests overall superiority. FDA 21 CFR 202.1(e) and FTC policy expect strong comparative evidence before using “most,” “best,” or “leading” claims.',
+    guarantee: 'Guarantees of outcomes are usually risky. FTC and MLR guidance expect qualified language and clear variability statements rather than promises.',
+    perfect: '“Perfect vision” is absolute outcome language. FDA/MLR generally prefer specific, balanced statements about the type of vision improvement and real‑world variability.',
+    no_glasses: 'Implying patients will never need glasses is often unrealistic. Safer phrasing is about reducing dependence on glasses with individual results varying.'
+  };
+}
+
+// helper: safe regex escape
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// build an alternative phrase per issue id
+function buildAlternative(issueId, originalSnippet) {
+  switch (issueId) {
+    case 'superiority':
+      return 'an advanced option supported by clinical data for appropriate patients';
+    case 'guarantee':
+      return 'may help improve outcomes; individual results can vary';
+    case 'perfect':
+      return 'provides vision improvement for many patients; results can vary';
+    case 'no_glasses':
+      return 'is designed to help reduce dependence on glasses; individual results vary';
+    default:
+      return 'may help appropriate patients; results can vary';
+  }
+}
+
+// compute hypothetical new scores if we swap out risky snippets
+function simulateImprovedScores(text, issues) {
+  const before = scoreFrom(text);
+  let newText = text;
+  let usedAlt = null;
+
+  if (issues && issues.length) {
+    const issue = issues[0]; // focus on first relevant issue for simplicity
+    const alt = buildAlternative(issue.id, issue.quotes && issue.quotes[0]);
+    usedAlt = alt;
+    if (issue.quotes && issue.quotes.length) {
+      issue.quotes.forEach(q => {
+        if (!q) return;
+        const re = new RegExp(escapeRegExp(q), 'gi');
+        newText = newText.replace(re, alt);
+      });
+    }
+  }
+
+  const after = scoreFrom(newText);
+  return { before, after, alt: usedAlt };
+}
+
+
+function formatDelta(before, after) {
+  if (!before || !after) return '';
+  const diff = after.overall - before.overall;
+  const arrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '—';
+  const delta = diff > 0 ? `+${diff}` : diff;
+
+  const lines = [
+    '<strong>Estimated impact on scores:</strong>',
+    `Estimated overall score: ${before.overall} → ${after.overall} (${arrow} ${delta} pts)`,
+    `FDA: ${before.fda}% → ${after.fda}%`,
+    `FTC: ${before.ftc}% → ${after.ftc}%`,
+    `Medical: ${before.mlrMed}% → ${after.mlrMed}%`,
+    `Legal: ${before.mlrLegal}% → ${after.mlrLegal}%`,
+    `Regulatory: ${before.mlrReg}% → ${after.mlrReg}%`,
+    '',
+    'To see how this alternative performs, replace your original statement with this one in the Submitted Content section and click Reanalyze Content.”'
+  ];
+
+  // Use <br> so it renders like ChatGPT-style stacked lines in the bubble
+  return lines.join('<br>');
+}
+function handleChat(q, issues) {
+  const s = (q || '').toLowerCase();
+  const ex = explainers();
+  const text = editor.value || '';
+  const hasIssues = issues && issues.length;
+
+  // explanation-style questions
+  if (s.includes('why') || s.includes('flag')) {
+    if (s.includes('advanced') || s.includes('safest') || s.includes('best')) return ex.superiority;
+    if (s.includes('guarantee')) return ex.guarantee;
+    if (s.includes('perfect')) return ex.perfect;
+    if (s.includes('glasses')) return ex.no_glasses;
+
+    if (hasIssues) {
+      const list = issues.map((i, idx) => `${idx + 1}. ${i.title}`).join('<br>');
+      return [
+        'Here’s what I’m most concerned about in your content:',
+        '',
+        list,
+        '',
+        'Next steps:',
+        '• Soften or qualify absolute claims.',
+        '• Add fair-balance language near strong benefit statements.',
+        '• Click “Reanalyze Content” after edits to update the score.'
+      ].join('<br>');
+    } else {
+      return [
+        'I’m not currently seeing any of the high-risk patterns I look for.',
+        '',
+        'You can still:',
+        '• Add or strengthen fair-balance language.',
+        '• Double-check that strong claims are anchored to approved data.',
+        '• Ask me for alternative phrasing if something still feels risky.'
+      ].join('<br>');
+    }
+  }
+
+  // rewrite / alternative requests
+  if (
+    s.includes('rewrite') ||
+    s.includes('alternative') ||
+    s.includes('alt') ||
+    s.includes('how should i say') ||
+    s.includes('fix') ||
+    s.includes('acceptable')
+  ) {
+    if (!hasIssues) {
+      return [
+        'I’m not detecting any of my high-risk patterns right now.',
+        '',
+        'If you’d still like to soften the language, you can:',
+        '• Avoid absolutes like “never,” “always,” or “perfect.”',
+        '• Pair strong benefit statements with variability or risk language.',
+        '• Keep claims tied closely to approved indications.'
+      ].join('<br>');
+    }
+
+    const sim = simulateImprovedScores(text, issues);
+    const parts = [];
+
+    parts.push('Here’s a more compliant alternative you could use:','');
+
+    if (sim.alt) {
+      parts.push('“' + sim.alt + '”','');
+    }
+
+    // Append neatly formatted score deltas
+    parts.push(formatDelta(sim.before, sim.after));
+
+    return parts.join('<br>');
+  }
+
+  // default guidance
+  return [
+    'You can ask things like:',
+    '• “Why was this phrase flagged?”',
+    '• “Can you suggest a compliant alternative?”',
+    '• “How would this change my score?”'
+  ].join('<br>');
+}
+
+if (chatLog) {
+  push('bot','Hi! I can help you understand flags, suggest compliant alternatives, and estimate how those changes would affect your score.');
+}
+
+if (chatSend) {
+  chatSend.addEventListener('click', () => {
+    const q = (chatInput && chatInput.value || '').trim();
+    if (!q) return;
+    push('user', q);
+    chatInput.value = '';
+    setTimeout(() => {
+      const reply = handleChat(q, extractIssues(editor.value));
+      push('bot', reply);
+    }, 180);
+  });
+}
+
+if (chatInput) {
+  chatInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      chatSend && chatSend.click();
+    }
+  });
+}
 
 // Export clean report (exclude .no-export elements, render textarea content as static text)
 function buildCleanReportNode(){
@@ -608,6 +968,7 @@ document.getElementById('exportPDF').addEventListener('click', () => {
     document.body.removeChild(holder);
   });
 });
+
 </script>
 
 <!-- ==== BEGIN: Export footer fixed bottom & centered (override only) ==== -->

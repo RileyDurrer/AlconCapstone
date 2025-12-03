@@ -10,9 +10,11 @@ from chatbot import getChatbotResponse
 
 dotenv.load_dotenv()
 
-#to do - call getCompliancePolicies from here and add product to the class
 class ComplianceController:
-    """Creates an instance of the ComplianceController to manage compliance checks and chatbot interactions. Creating a new instance will reset chat history and compliance grade history.
+    """Creates an instance of the ComplianceController to 
+    manage compliance checks and chatbot interactions. 
+    Creating a new instance will reset chat history and 
+    compliance grade history.
     """
     def __init__(self):
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -79,25 +81,25 @@ class ComplianceController:
 
         return compliance
     
-# -----------------------------------------------------
-# CHATBOT MESSAGE
-# -----------------------------------------------------
-def chat_bot_message(self, user_message: str):
-    # Add user message to short-term memory
-    self.add_message("user", user_message)
+    # -----------------------------------------------------
+    # CHATBOT MESSAGE
+    # -----------------------------------------------------
+    def chat_bot_message(self, user_message: str):
+        # Add user message to short-term memory
+        self.add_message("user", user_message)
 
-    # Generate chatbot reply using the memory architecture
-    reply = getChatbotResponse(
-        user_prompt=user_message,
-        client=self.client,
-        short_history=self.chat_history,
-        long_term_state=self.state,
-    )
+        # Generate chatbot reply using the memory architecture
+        reply = getChatbotResponse(
+            user_prompt=user_message,
+            client=self.client,
+            short_history=self.chat_history,
+            long_term_state=self.state,
+        )
 
-    # Store assistant reply in short-term memory
-    self.add_message("assistant", reply)
+        # Store assistant reply in short-term memory
+        self.add_message("assistant", reply)
 
-    # Return the text back to the notebook UI
-    return reply
+        # Return the text back to the notebook UI
+        return reply
 
 

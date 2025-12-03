@@ -108,6 +108,7 @@ Evaluate how similar the marketing text is to each approved claim.
 ### FDA / FTC Policies
 These reflect regulatory requirements.
 if it scores above a 85 it will be filtered out by the structureComplianceGrade function so it should only get that score if the user doesn't need to worry about it.
+everything below a 70 will impose a penalty on the overall score.
 
 - Fully compliant or unrelated → 80–100
 - Minor risk or unclear compliance → 60–80
@@ -119,7 +120,7 @@ if it scores above a 85 it will be filtered out by the structureComplianceGrade 
 ## Output Rules
 - You must evaluate EVERY policy in ALL policy groups (Approved, FDA, FTC). No exceptions.
 - Produce exactly one evaluation object per policy.
-- For FDA and FTC policies: if the policy is unrelated, output a high grade (80–100) and the reason "Unrelated; no conflict."
+- For FDA and FTC policies: if the policy is unrelated, output a high grade (>85) so that it can be ignored by later filters and the reason "Unrelated; no conflict."
 - For Approved policies: if unrelated, output a low grade (0–50) and the reason "Unrelated; no similarity."
 - Include: policy_id, policy, type, grade, reason.
 - Higher scores = stronger compliance.
@@ -190,7 +191,7 @@ def getResponseFromLLM(prompt: str, client) -> dict:
 
 #Removes passing policies from JSON and adds compiled scores
 def structureComplianceGrade(response: dict) -> dict:
-    ignoreScore = 85
+    ignoreScore = 90
     df = pd.DataFrame(response["evaluations"])
 
     # SAFETY: derive type from policy_id

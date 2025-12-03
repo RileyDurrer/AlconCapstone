@@ -117,18 +117,41 @@
     .combo-list li{padding:8px 12px;cursor:pointer}
     .combo-list li[aria-selected="true"],.combo-list li:hover{background:rgba(0,0,0,.04)}
   </style>
+  <script>
+    // One-time SSO gate per user (persists across refreshes)
+    const userSession = localStorage.getItem('mlrDemoUser');
+
+    if (!userSession) {
+      window.location.href = 'login.html';
+    }
+  </script>
 </head>
 <body>
   <header class="topbar" role="banner">
-    <div class="inner">
-      <div class="brand" aria-label="Alcon">
-        <div class="logo" aria-hidden="true"></div>
-        <span>Alcon</span>
-        <div class="crumbs">MLR Pre-Screening Agent · Review</div>
-      </div>
-      <div class="avatar" aria-label="User avatar" title="Sarah Chen">SC</div>
+  <div class="inner">
+    <div class="brand" aria-label="Alcon">
+      <div class="logo" aria-hidden="true"></div>
+      <span>Alcon</span>
+      <div class="crumbs">MLR Pre-Screening Agent · Review</div>
     </div>
-  </header>
+
+    <!-- Right side: avatar + logout -->
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div class="avatar" aria-label="User avatar" title="Jenna Cope">JC</div>
+
+      <!-- ✅ LOG OUT BUTTON (FOR DEMO RESET) -->
+      <button
+        id="logoutBtn"
+        style="font-size:12px;
+               border:none;
+               background:none;
+               color:#0072CE;
+               cursor:pointer;">
+        Log out
+      </button>
+    </div>
+  </div>
+</header>
 
   <main class="wrap" role="main">
     <div class="grid">
@@ -336,6 +359,14 @@ document.addEventListener('DOMContentLoaded', function(){
     document.addEventListener('click', e=>{ if(!wrap.contains(e.target)) setExpanded(false); });
     caret.addEventListener('click', e=>{ e.stopPropagation(); if(list.getAttribute('aria-hidden')==='true'){ items=filter(input.value); render(items,active); setExpanded(true); input.focus(); } else setExpanded(false); });
   })();
+  // ✅ DEMO LOGOUT (force SSO reset)
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('mlrDemoUser');
+    window.location.href = 'login.html';
+  });
+}
 });
 </script>
 </body>
