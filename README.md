@@ -1,4 +1,5 @@
 # Alcon Marketing Compliance Grader – README
+
 ## Overview
 
 The Alcon Marketing Compliance Grader is a backend system designed to analyze marketing text for compliance with approved Alcon product claims, FDA requirements, and FTC advertising regulations.
@@ -42,7 +43,9 @@ AlconCapstone/
 ```
 
 ## Compliance Check
+
 ### 1. Load Policies (per-product)
+
 Each product folder contains three CSVs:
 
 ApprovedClaims.csv
@@ -57,12 +60,11 @@ self.policies = {
     "ftc": df3
 }
 
-
 These DataFrames are then passed into the compliance prompt builder.
 
 ### 2. Build the LLM Prompt
 
-buildCompliancePrompt() composes a structured prompt containing:
+build_compliance_prompt() composes a structured prompt containing:
 
 - Marketing text
 - All policies grouped + labeled with policy_id
@@ -76,13 +78,14 @@ This ensures output is always machine-readable.
 
 OpenAI’s API receives the built prompt and returns full JSON:
 
-result = getResponseFromLLM(prompt)
+result = get_response_from_LLM(prompt)
 
 *This JSON includes:*
 List of all evaluations
+
 - Grade per policy
 - Low-level reasons
-Summary text
+  Summary text
 
 ### 4. Structure + Filter the Results
 
@@ -123,6 +126,7 @@ Used for natural chat context.
 **2. State Memory**
 (Stored in the controller)
 Includes:
+
 - most recent compliance result
 - previous compliance results
 - strictness
@@ -130,12 +134,14 @@ Includes:
 
 **3. Fix Suggestion Generation**
 Chatbot automatically creates targeted suggestions based on:
+
 - policy violations
 - missing alignment with approved claims
 - severity of issues
-historical improvements (optional)
+  historical improvements (optional)
 
 ## Environment Setup
+
 .env File
 
 Create a .env file in the project root:
@@ -145,11 +151,13 @@ STRICTNESS=5
 STRICTNESS ranges 1–10 and adjusts how harshly violations are judged.
 
 ## Installing Dependencies
+
 pip install -r requirements.txt
 or in venv:
 pip install -r requirements.txt
 
 ## Using the Controller in a Script
+
 from controller import ComplianceController
 ctrl = ComplianceController(product="TOTAL30")
 material = "Feels great all month."
@@ -159,13 +167,11 @@ print(result)
 response = ctrl.chat_bot_message("How do I fix this?")
 print(response)
 
-##  the Interactive Notebook
+## the Interactive Notebook
 
 The Jupyter Notebook provides:
 Live chat interface
 /grade command to re-run compliance
-
-
 
 **Conversation memory**
 Example cell:
@@ -178,19 +184,21 @@ You can run the simplified CLI through main.py.
 python main.py
 
 ## Adding a New Product
+
 Create folder:
 compliance_docs/NewProduct/
 
 Add:
+
 - ApprovedClaims.csv
 - FDAPolicies.csv
 - FTCPolicies.csv
-
 
 **In controller:**
 ctrl = ComplianceController(product="NewProduct")
 
 ## Planned Extensions
+
 Streaming responses
 Web front-end (React or Streamlit)
 Multi-product / multi-version support
@@ -198,5 +206,6 @@ Policy “weights” for more advanced scoring
 Exportable audit summaries
 
 ## Contact:
-If you need help extending or integrating the system, message anytime. 
+
+If you need help extending or integrating the system, message anytime.
 https://www.linkedin.com/in/rileydurrer/

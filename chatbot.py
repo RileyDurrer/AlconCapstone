@@ -13,6 +13,7 @@ SYSTEM_PROMPT = (
 # Build fix suggestions
 # ---------------------------------------------------------
 def build_fix_suggestions(compliance: dict) -> str:
+    """Generates fix suggestions based on compliance results."""
     if not compliance:
         return "Fix suggestions will appear after a compliance check."
 
@@ -37,6 +38,7 @@ def build_fix_suggestions(compliance: dict) -> str:
 # Compare previous compliance to current compliance
 # ---------------------------------------------------------
 def compare_compliance(previous: dict, current: dict) -> str:
+    """Compares previous compliance results to current results."""
     if not previous:
         return "This is the first compliance check of the session."
 
@@ -72,7 +74,8 @@ def compare_compliance(previous: dict, current: dict) -> str:
 # ---------------------------------------------------------
 # Main Chatbot Response
 # ---------------------------------------------------------
-def getChatbotResponse(user_prompt: str, client: OpenAI, short_history: list, long_term_state: dict):
+def get_chatbot_response(user_prompt: str, client: OpenAI, short_history: list, long_term_state: dict):
+    """Generates a chatbot response using both short-term and long-term memory."""
     current = long_term_state.get("last_compliance")
     previous = long_term_state.get("previous_compliance")
 

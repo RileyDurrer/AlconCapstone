@@ -27,7 +27,7 @@ def main():
             print("Invalid input. Please enter 1 or 2.\n")
 
     product = product_map[product_choice]
-    ctrl.set_product(product)
+    ctrl.load_product_policies(product)
 
     print(f"\n✔ Product set to: {product}\n")
 

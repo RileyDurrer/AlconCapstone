@@ -445,6 +445,423 @@ const product = localStorage.getItem('mlr_product') || '—';
 const uploadName = localStorage.getItem('mlr_upload_name') || '';
 document.getElementById('prodLabel').textContent = `Analysis for: ${product}${uploadName ? ' · File: ' + uploadName : ''}`;
 const editor = document.getElementById('contentEditor');
+const BACKEND_DEMOS = {
+  "Clareon PanOptix IOL": {
+  "scores": {
+    "approved": 53,
+    "fda": 61,
+    "ftc": 14,
+    "mlrMed": 55,
+    "mlrLegal": 62,
+    "mlrReg": 70
+  },
+  "issues": [
+    {
+      "id": "panoptix_issue_1",
+      "title": "Promotional material does not mention hazards, contraindications or side effects required on prescription device labeling.",
+      "severity": "critical",
+      "standards": [
+        "FDA"
+      ],
+      "citations": [
+        "21 CFR § 801.109(c)-(d): Prescription devices—labeling on the dispensing package shall include indications, hazards, contraindications, side effects, and precautions."
+      ],
+      "quotes": [
+        "Clareon® PanOptix® delivers a comprehensive range of vision and exceptional clarity¹.",
+        "Clareon® PanOptix® is not just an IOL—it’s a leap forward in patient satisfaction, safety, and the future of vision care."
+      ]
+    },
+    {
+      "id": "panoptix_issue_2",
+      "title": "If the device does not have approved PMA, claims including guarantees may violate this rule.",
+      "severity": "critical",
+      "standards": [
+        "FDA"
+      ],
+      "citations": [
+        "21 CFR § 814.80: Promotional materials for Class III devices must not be disseminated prior to FDA approval of the PMA."
+      ],
+      "quotes": [
+        "But what truly sets Clareon® PanOptix® apart is its ability to guarantee spectacle independence for every patient, every time⁷.",
+        "Surgeons who choose PanOptix® is giving their patients the best possible outcome, and your patients will thank you for choosing the best."
+      ]
+    },
+    {
+      "id": "panoptix_issue_3",
+      "title": "Promotional text omits risk warnings and material info required on labeling.",
+      "severity": "critical",
+      "standards": [
+        "FDA"
+      ],
+      "citations": [
+        "FDA Guidance (2020): Labeling for intraocular lenses must include lens model, diopter power, material composition, and warnings regarding potential complications such as glare, halos, and reduced contrast sensitivity."
+      ],
+      "quotes": [
+        "The latest advancements in lens technology enable a continuous range of vision from distance to near up to 33 cm⁹.",
+        "Clareon® PanOptix® delivers a comprehensive range of vision and exceptional clarity¹."
+      ]
+    },
+    {
+      "id": "panoptix_issue_4",
+      "title": "No disclosure of potential risks or side effects constitutes material omission in promotional claims.",
+      "severity": "critical",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "FTC Enforcement Policy: The omission of material risk or side effect information in promotional claims constitutes deceptive omission."
+      ],
+      "quotes": [
+        "Clareon® PanOptix® is not just an IOL—it’s a leap forward in patient satisfaction, safety, and the future of vision care."
+      ]
+    },
+    {
+      "id": "panoptix_issue_5",
+      "title": "Unsubstantiated guarantee claim of spectacle independence likely constitutes false advertising.",
+      "severity": "critical",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "15 U.S.C. § 52(a): It shall be unlawful to disseminate or cause to be disseminated any false advertisement for the purpose of inducing, or which is likely to induce, directly or indirectly, the purchase of food, drugs, devices, services, or cosmetics."
+      ],
+      "quotes": [
+        "But what truly sets Clareon® PanOptix® apart is its ability to guarantee spectacle independence for every patient, every time⁷."
+      ]
+    },
+    {
+      "id": "panoptix_issue_6",
+      "title": "Guarantee claims for all patients and 'ultra-high definition' vision likely violate FTC standards without strong clinical substantiation.",
+      "severity": "critical",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "FTC ‘i-Health Inc.’ Case (2020): Deceptive claims regarding vision health products without adequate clinical substantiation violate Sections 5 and 12 of the FTC Act."
+      ],
+      "quotes": [
+        "But what truly sets Clareon® PanOptix® apart is its ability to guarantee spectacle independence for every patient, every time⁷.",
+        "The lens provides vision so sharp, it’s like seeing the world in ultra-high definition⁸."
+      ]
+    },
+    {
+      "id": "panoptix_issue_7",
+      "title": "Guarantee claim and hyperbolic phrases likely mislead consumers without proper substantiation.",
+      "severity": "critical",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "FTC Policy Statement on Deception (1983): A representation, omission, or practice is deceptive if it is likely to mislead consumers acting reasonably under the circumstances and is material."
+      ],
+      "quotes": [
+        "This lens is designed for those who want to offer their patients the most advanced solution available, with 20/20 near, intermediate, and distance vision now possible².",
+        "The lens provides vision so sharp, it’s like seeing the world in ultra-high definition⁸.",
+        "But what truly sets Clareon® PanOptix® apart is its ability to guarantee spectacle independence for every patient, every time⁷."
+      ]
+    },
+    {
+      "id": "panoptix_issue_8",
+      "title": "Claims of 'spectacle independence for every patient, every time' are likely deceptive and lack substantiation.",
+      "severity": "critical",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+          "15 U.S.C. § 45(a)(1): Unfair methods of competition in or affecting commerce, and unfair or deceptive acts or practices in or affecting commerce, are declared unlawful."
+      ],
+      "quotes": [
+        "But what truly sets Clareon® PanOptix® apart is its ability to guarantee spectacle independence for every patient, every time⁷."
+      ]
+    },
+    {
+      "id": "panoptix_issue_9",
+      "title": "Marketing text contains unsubstantiated guarantees and exaggerated benefits likely deemed deceptive.",
+      "severity": "critical",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "FTC Act § 12 (15 U.S.C. § 52): Deceptive advertising of medical devices, including intraocular lenses, is prohibited if misleading in a material respect."
+      ],
+      "quotes": [
+        "This lens is designed for those who want to offer their patients the most advanced solution available, with 20/20 near, intermediate, and distance vision now possible².",
+        "But what truly sets Clareon® PanOptix® apart is its ability to guarantee spectacle independence for every patient, every time⁷.",
+        "The lens provides vision so sharp, it’s like seeing the world in ultra-high definition⁸.",
+        "Clareon® PanOptix® is not just an IOL—it’s a leap forward in patient satisfaction, safety, and the future of vision care."
+      ]
+    },
+    {
+      "id": "panoptix_issue_10",
+      "title": "Marketing contains misleading claims, e.g. guarantee of spectacle independence and 'ultra-high definition' vision without substantiation.",
+      "severity": "critical",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "15 U.S.C. § 55(a)(1): Defines “false advertisement” as an advertisement that is misleading in a material respect, considering representations made or suggested and material omissions."
+      ],
+      "quotes": [
+        "But what truly sets Clareon® PanOptix® apart is its ability to guarantee spectacle independence for every patient, every time⁷.",
+        "The lens provides vision so sharp, it’s like seeing the world in ultra-high definition⁸."
+      ]
+    },
+    {
+      "id": "panoptix_issue_11",
+      "title": "Marketing contains several strong claims without adequate disclosure of evidence or limitations.",
+      "severity": "high",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "FTC Advertising Substantiation Policy (1984): Advertisers must have a reasonable basis for objective product claims before dissemination, generally requiring competent and reliable scientific evidence for health-related claims."
+      ],
+      "quotes": [
+        "Clareon® PanOptix® delivers a comprehensive range of vision and exceptional clarity¹.",
+        "This lens is designed for those who want to offer their patients the most advanced solution available, with 20/20 near, intermediate, and distance vision now possible².",
+        "With Clareon® PanOptix®, you give your patients the future of presbyopia correction."
+      ]
+    },
+    {
+      "id": "panoptix_issue_12",
+      "title": "Missing label data in marketing material is a low risk but notable.",
+      "severity": "high",
+      "standards": [
+        "FDA"
+      ],
+      "citations": [
+        "21 CFR § 801.15(a): Required label information must have sufficient prominence and conspicuousness as required by section 502(c) of the act."
+      ],
+      "quotes": [
+        "The latest advancements in lens technology enable a continuous range of vision from distance to near up to 33 cm⁹.",
+        "Clareon® PanOptix® is not just an IOL—it’s a leap forward in patient satisfaction, safety, and the future of vision care."
+      ]
+    },
+    {
+      "id": "panoptix_issue_13",
+      "title": "References provided are limited; guarantee-like claims likely exceed substantiated evidence.",
+      "severity": "high",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "FTC ‘POM Wonderful’ Decision (2013): Health-related efficacy claims require at least one well-controlled human clinical trial to substantiate the claim."
+      ],
+      "quotes": [
+        "Patients love their results with Clareon® PanOptix®, reporting full range of vision and exceptional clarity without glasses⁶.",
+        "But what truly sets Clareon® PanOptix® apart is its ability to guarantee spectacle independence for every patient, every time⁷."
+      ]
+    },
+    {
+      "id": "panoptix_issue_14",
+      "title": "No evidence provided to support sweeping claims of spectacle independence guarantee.",
+      "severity": "high",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "FTC Health Products Compliance Guidance (2022): Advertisers must possess competent and reliable scientific evidence substantiating claims that a health-related product will provide the advertised benefit."
+      ],
+      "quotes": [
+        "But what truly sets Clareon® PanOptix® apart is its ability to guarantee spectacle independence for every patient, every time⁷."
+      ]
+    },
+    {
+      "id": "panoptix_issue_15",
+      "title": "Marketing text does not include manufacturer name or place of business as required.",
+      "severity": "high",
+      "standards": [
+        "FDA"
+      ],
+      "citations": [
+        "21 CFR § 801.1(a): The label of a device must specify conspicuously the name and place of business of the manufacturer, packer, or distributor."
+      ],
+      "quotes": [
+        "Clareon® PanOptix® delivers a comprehensive range of vision and exceptional clarity¹."
+      ]
+    },
+    {
+      "id": "panoptix_issue_16",
+      "title": "Marketing contains unsubstantiated efficacy claims that may be subject to injunction.",
+      "severity": "high",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "15 U.S.C. § 54: Provides for injunctions against false advertisements of food, drugs, devices, or cosmetics that are misleading in a material respect."
+      ],
+      "quotes": [
+        "Surgeons seeking the next level in intraocular lens technology will find Clareon® PanOptix® delivers a comprehensive range of vision and exceptional clarity¹.",
+        "This lens is designed for those who want to offer their patients the most advanced solution available, with 20/20 near, intermediate, and distance vision now possible².",
+        "Clareon® PanOptix® is not just an IOL—it’s a leap forward in patient satisfaction, safety, and the future of vision care."
+      ]
+    },
+    {
+      "id": "panoptix_issue_17",
+      "title": "References include journal articles but modified claims like guarantees lack adequate substantiation.",
+      "severity": "high",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "FTC Health Products Guidance §III.A: ‘Competent and reliable scientific evidence’ generally consists of tests, analyses, research, or studies that have been conducted and evaluated in an objective manner by qualified persons using procedures generally accepted in the profession."
+      ],
+      "quotes": [
+        "Patients love their results with Clareon® PanOptix®, reporting full range of vision and exceptional clarity without glasses⁶.",
+        "But what truly sets Clareon® PanOptix® apart is its ability to guarantee spectacle independence for every patient, every time⁷."
+      ]
+    },
+    {
+      "id": "panoptix_issue_18",
+      "title": "Marketing text lacks directions for layman, but it is promotional and not instructional labeling.",
+      "severity": "high",
+      "standards": [
+        "FDA"
+      ],
+      "citations": [
+        "21 CFR § 801.5: Adequate directions for use means directions under which a layman can use a device safely and for the purposes intended."
+      ],
+      "quotes": [
+        "With Clareon® PanOptix®, you give your patients the future of presbyopia correction."
+      ]
+    }
+  ],
+  "overall_summary": "Marketing text aligns well with many approved claims but contains unsubstantiated guarantee claims and hyperbolic language that may mislead consumers. FDA-required risk and labeling information is missing, and if device PMA approval is pending, dissemination may violate FDA rules. FTC standards are likely violated due to deceptive and unsupported claims, especially regarding spectacle independence guarantees without sufficient evidence."
+},
+  "Total 30 Contact Lens": {
+  "scores": {
+    "approved": 92,
+    "fda": 95,
+    "ftc": 86,
+    "mlrMed": 90,
+    "mlrLegal": 73,
+    "mlrReg": 88
+  },
+  "issues": [
+    {
+      "id": "total30_issue_1",
+      "title": "Marketing uses optometrist trust and clinical references but does not disclose any connection (e.g., sponsorship) between endorsers and Alcon; potential compliance risk.",
+      "severity": "high",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "§ 255.5: When there exists a connection between the endorser and the seller that might materially affect the weight or credibility of the endorsement, such connection must be clearly and conspicuously disclosed."
+      ],
+      "quotes": [
+        "For optometrists seeking breakthrough innovation, TOTAL30® is the only reusable lens clinically shown to feel like nothing, even on day 30⁹.",
+        "Your patients will thank you."
+      ]
+    },
+    {
+      "id": "total30_issue_2",
+      "title": "Marketing states that optometrists trust the product and claims clinical support, but does not disclose endorsements or substantiation context fully; minor risk of implied endorsement without detailed evidence.",
+      "severity": "high",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "§ 255.1(a): Endorsements must reflect the honest opinions, findings, beliefs, or experience of the endorser, and may not convey any representation that would be deceptive or could not be substantiated."
+      ],
+      "quotes": [
+        "For optometrists seeking breakthrough innovation, TOTAL30® is the only reusable lens clinically shown to feel like nothing, even on day 30⁹.",
+        "TOTAL30® sets a new standard for monthly lenses⁷."
+      ]
+    },
+    {
+      "id": "total30_issue_3",
+      "title": "Marketing mentions optometrists and clinical evidence but does not explicitly document expert process; minor risk.",
+      "severity": "high",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "§ 255.3(a): Expert endorsements must be supported by an actual exercise of expertise, examination or testing conducted by the expert, and must compare products only on the basis of such expertise."
+      ],
+      "quotes": [
+        "For optometrists seeking breakthrough innovation, TOTAL30® is the only reusable lens clinically shown to feel like nothing, even on day 30⁹."
+      ]
+    },
+    {
+      "id": "total30_issue_4",
+      "title": "Marketing claims clinical proof lenses feel like nothing but lacks clear disclosure of typical consumer experience; minor risk.",
+      "severity": "high",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "§ 255.2(b): If the advertiser does not have substantiation that the endorser’s experience represents what consumers will generally achieve, the advertisement must clearly and conspicuously disclose the generally expected performance in the depicted circumstances."
+      ],
+      "quotes": [
+        "TOTAL30®—the first and only monthly replacement Water Gradient contact lens that feels like nothing, even on day 30¹.",
+        "…clinically shown to feel like nothing, even on day 30⁹."
+      ]
+    },
+    {
+      "id": "total30_issue_5",
+      "title": "Marketing claims optometrist trust but does not explain process or organization endorsement clearly; minor risk.",
+      "severity": "high",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "§ 255.4: Organizational endorsements shall be reached by a process adequate to ensure that the endorsement fairly represents the collective judgment of the organization."
+      ],
+      "quotes": [
+        "For optometrists seeking breakthrough innovation, TOTAL30® is the only reusable lens clinically shown to feel like nothing, even on day 30⁹."
+      ]
+    },
+    {
+      "id": "total30_issue_6",
+      "title": "Claims largely substantiated per marketing references, but some claims of superiority and clinical performance could raise questions without public data.",
+      "severity": "low",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "15 U.S.C. § 52(a): It shall be unlawful for any person, partnership, or corporation to disseminate, or cause to be disseminated, any false advertisement for the purpose of inducing, or which is likely to induce, directly or indirectly, the purchase of food, drugs, devices, services, or cosmetics."
+      ],
+      "quotes": [
+        "…superior softness, and lubricity compared to leading reusable lenses⁷.",
+        "TOTAL30® sets a new standard for monthly lenses⁷."
+      ]
+    },
+    {
+      "id": "total30_issue_7",
+      "title": "Marketing references internal data but does not provide easily accessible substantiation; some risk due to lack of publicly verifiable evidence.",
+      "severity": "low",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "15 U.S.C. § 55(a)(1): The term “false advertisement” means an advertisement, other than labeling, which is misleading in a material respect; in determining whether an advertisement is misleading, there shall be taken into account representations made or suggested and the extent to which the advertisement fails to reveal facts material in light of such representations."
+      ],
+      "quotes": [
+        "…clinically shown to feel like nothing, even on day 30⁹.",
+        "TOTAL30® is designed for real-world wear, maintaining its Water Gradient Technology for a full 30 days⁴, so your patients can rely on lasting comfort and performance."
+      ]
+    },
+    {
+      "id": "total30_issue_8",
+      "title": "Marketing does not appear deceptive or unfair based on provided information.",
+      "severity": "low",
+      "standards": [
+        "FTC"
+      ],
+      "citations": [
+        "15 U.S.C. § 45(a)(1): Unfair methods of competition in or affecting commerce, and unfair or deceptive acts or practices in or affecting commerce, are hereby declared unlawful."
+      ],
+      "quotes": [
+        "At Alcon, we believe every patient deserves comfort and clarity that lasts.",
+        "It’s more than just a contact lens—it’s a commitment to patient satisfaction, safety, and future of vision care."
+      ]
+    }
+  ],
+  "overall_summary": "Marketing text is closely aligned with approved claims and generally compliant with FDA and FTC policies with minor risks related to endorsement disclosures and substantiation of clinical claims."
+}
+};
+
+
 editor.value = localStorage.getItem('mlr_text') || '';
 
 // Rules & Suggestions (subset for demo)
@@ -599,9 +1016,10 @@ const statusBubble=document.getElementById('statusBubble');
 function renderDonut(pct){
   scoreNum.textContent=pct;
   donut.style.setProperty('--deg',(pct*3.6)+'deg');
-  if(pct>=85){ donut.style.setProperty('--color','var(--green)'); statusBubble.className='bubble green'; statusBubble.textContent='Low Risk – compliant'; }
+  if(pct>=85){ donut.style.setProperty('--color','var(--green)'); statusBubble.className='bubble green'; statusBubble.textContent=' Low Risk – compliant'; }
+
   else if(pct>=70){ donut.style.setProperty('--color','var(--amber)'); statusBubble.className='bubble amber'; statusBubble.textContent='Needs Review – some issues'; }
-  else { donut.style.setProperty('--color','var(--red)'); statusBubble.className='bubble red'; statusBubble.textContent='High risk – critical issues '; }
+  else { donut.style.setProperty('--color','var(--red)'); statusBubble.className='bubble red'; statusBubble.textContent='High Risk – multiple critical issues'; }
 }
 function el(tag,attrs={},html=''){ const n=document.createElement(tag); Object.entries(attrs).forEach(([k,v])=>{ if(k==='class') n.className=v; else n.setAttribute(k,v); }); if(html) n.innerHTML=html; return n; }
 
@@ -634,9 +1052,9 @@ function renderIssues(issues){
     }
 
     let severityLabel;
-    if(effSeverity === 'critical'){ severityLabel='High risk'; }
-    else if(effSeverity === 'high'){ severityLabel='Needs review'; }
-    else { severityLabel='Strong'; }
+    if(effSeverity === 'critical'){ severityLabel='High Risk'; }
+    else if(effSeverity === 'high'){ severityLabel='Needs Review'; }
+    else { severityLabel='Low Risk'; }
 
     const sev = el('span',{class:`sev ${effSeverity}`}, severityLabel);
     head.append(sev);
@@ -713,8 +1131,30 @@ function renderRecs(issues){
   });
 }
 function analyzeNow(text){
-  const s=scoreFrom(text);
-  renderBreakdown(s); renderDonut(s.overall); renderIssues(s.issues); renderRecs(s.issues);
+  const productKey = localStorage.getItem('mlr_product') || '';
+  const demo = BACKEND_DEMOS[productKey];
+  if (demo) {
+    const s = {
+      fda: demo.scores.fda,
+      ftc: demo.scores.ftc,
+      mlrMed: demo.scores.mlrMed,
+      mlrLegal: demo.scores.mlrLegal,
+      mlrReg: demo.scores.mlrReg,
+      overall: demo.scores.approved,
+      issues: demo.issues || []
+    };
+    renderBreakdown(s);
+    renderDonut(s.overall);
+    renderIssues(s.issues);
+    renderRecs(s.issues);
+    return;
+  }
+  // Fallback to front-end heuristic scoring if no backend demo mapping exists
+  const s = scoreFrom(text);
+  renderBreakdown(s);
+  renderDonut(s.overall);
+  renderIssues(s.issues);
+  renderRecs(s.issues);
 }
 analyzeNow(editor.value);
 

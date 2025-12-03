@@ -4,13 +4,51 @@ import os
 
 from openai import OpenAI
 
-def buildCompliancePrompt(marketing_text: str, policies: dict, strictness: int):
-
+def build_compliance_prompt(marketing_text: str, policies: dict, strictness: int):
     """
-    Builds a grading prompt that:
-    - Rewards similarity to Approved Claims
-    - Enforces compliance with FDA + FTC policies
-    - Returns IDs so caller can map response -> original DataFrame rows
+    Construct the full grading prompt used by the compliance LLM.
+
+    This prompt:
+      • Injects all Approved Claims, FDA policies, and FTC policies for the product.
+      • Assigns unique policy IDs (e.g., "approved:0", "fda:12").
+      • Describes how similarity, compliance, and penalties should be applied.
+      • Embeds a strictness parameter that controls leniency (1) → strictness (10).
+      • Instructs the model to return structured JSON only.
+
+    Args:
+        marketing_text (str):
+            The marketing claim or text snippet that should be evaluated.
+
+        policies (dict):
+            A dictionary of DataFrames produced by `read_product_policy_files()`, in the form:
+            {
+                "approved": pd.DataFrame,
+                "fda": pd.DataFrame,
+                "ftc": pd.DataFrame
+            }
+            Each DataFrame must contain the policy text in its first column.
+
+        strictness (int):
+            A value from 1–10 controlling how harsh the scoring should be:
+                1–3:   Lenient – only major issues reduce scores.
+                4–7:   Standard – follow normal scoring rules.
+                8–10:  Strict – penalties applied aggressively, weak similarity scored lower.
+
+    Returns:
+        str:
+            A fully formatted prompt that the model can evaluate directly.
+            The prompt includes:
+                • Marketing text
+                • All policy groups with IDs
+                • Strictness interpretation
+                • Scoring rules for all categories
+                • Explicit JSON output schema
+                • Instructions to return *only* JSON
+
+    Notes:
+        • FDA/FTC policies that score > 85 will be ignored by `structure_compliance_grade()`
+          since they represent “no action needed.”
+        • Approved claims are never filtered out and always included in the similarity scoring.
     """
     
     
@@ -148,10 +186,30 @@ Return ONLY JSON, no commentary.
 
 
 
-def load_product_policies(product: str):
+def read_product_policy_files(product: str):
     """
-    Loads all CSV files under ./compliance_docs/{product}_compliance/
-    Returns: {file_stem: DataFrame}
+    Loads all compliance policy CSV files for a given product.
+
+    This reads the Approved Claims, FDA Policies, and FTC Policies
+    located in:
+        ./compliance_docs/{product}_compliance/
+
+    Args:
+        product (str):
+            Product name whose corresponding policy folder exists
+            under ./compliance_docs.
+
+    Returns:
+        dict:
+            {
+                "approved": pd.DataFrame,
+                "fda": pd.DataFrame,
+                "ftc": pd.DataFrame
+            }
+
+    Raises:
+        FileNotFoundError:
+            If the product folder or required CSV files are missing.
     """
     base = os.getcwd()
     folder = os.path.join(base, "compliance_docs", f"{product}_compliance")
@@ -191,6 +249,44 @@ def get_response_from_LLM(prompt: str, client) -> dict:
 
 #Removes passing policies from JSON and adds compiled scores
 def structure_compliance_grade(response: dict) -> dict:
+    """
+    Convert raw LLM compliance evaluations into a front-end-ready structure.
+
+    This function:
+    - Removes high-scoring FDA/FTC policies (those the user does not need to worry about).
+    - Sorts remaining policies by severity (lowest grade = highest priority).
+    - Extracts approved-claim matches and computes a rolled-up “approved score”.
+    - Computes FDA and FTC category scores using a weighted penalty system.
+    - Ensures all outputs are JSON-serializable (no numpy types).
+
+    Args:
+        response (dict):
+            Raw JSON dictionary returned from the LLM.
+            Must contain:
+            {
+                "evaluations": [ { policy_id, policy, type, grade, reason }, ... ],
+                "overall_summary": str
+            }
+
+    Returns:
+        dict:
+            A normalized structure ready for UI consumption:
+            {
+                "scores": {
+                    "approved": int,
+                    "fda": float,
+                    "ftc": float
+                },
+                "filtered_evaluations": [
+                    { policy_id, policy, type, grade, reason }, ...
+                ],
+                "approved_matches": [
+                    { policy_id, policy, type, grade, reason }, ...
+                ],
+                "approved_match_summary": str,
+                "overall_summary": str
+            }
+    """
     ignoreScore = 90
     df = pd.DataFrame(response["evaluations"])
 
