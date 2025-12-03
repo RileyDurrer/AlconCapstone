@@ -16,6 +16,7 @@ CSV-driven compliance data storage for each product
 
 It is designed to run as a backend service, with an interactive Jupyter Notebook front-end for visualization and manual testing.
 
+```text
 AlconCapstone/
 │
 ├── controller.py                # Main controller: policies, grading, chatbot state
@@ -34,10 +35,11 @@ AlconCapstone/
 │       ├── FDAPolicies.csv
 │       ├── FTCPolicies.csv
 │
-├── .env                         # API key / config values (not committed)
+├── .env                         # API key / config values (ignored)
 ├── .env.example                 # Template for required environment variables
 ├── requirements.txt             # Python dependencies
-└── README.md                    # Project documentation
+└── README.md                    # Documentation
+```
 
 ## Compliance Check
 ### 1. Load Policies (per-product)
